@@ -1,0 +1,87 @@
+<!doctype html>
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Fortinet ATP Demo Script</title>
+		<meta name="author" content="Michał&nbsp;Kułakowski">
+		<link rel="stylesheet" href="css/style.css">
+	</head>
+	<body>
+		<h1>Fortinet ATP Demo Script</h1>
+		<p>Once you have demo data up and running (consult <i>README.md</i> for instructions), here you will find steps to execute the demo including talking points.</p>
+		<table>
+			<tr class="header_row">
+				<td>What to do</td>
+				<td>What to say</td>
+				<td>Illustration</td>				
+			</tr>
+			<tr class="subheader_row">
+				<td colspan="3">Preparation</td>
+			</tr>
+			<tr>
+				<td>Log into your FortiSIEM appliance. Go to Incidents tab.
+				</td>
+				<td>
+				</td>
+				<td><a href="img/incidents_screen.png"><img src="img/thumbnails/incidents_screen.png"/></a>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p>Log onto your FortiSIEM appliance via ssh. Go to the folder where you have cloned the demo repository.</p>
+				</td>
+				<td>
+				</td>
+				<td>
+				</td>
+			</tr>
+			<tr class="subheader_row">
+				<td colspan="3">Execution</td>
+			</tr>
+			<tr>
+				<td>
+				</td>
+				<td>
+					<p>Recently Wannacry ransomware has taken much attention in the news. It has disrupted healthcare services in the UK, disabled ATM's, railway control systems and public display screens.</p>
+					<p>What was different this time? For the first time ever ransomware got delivered as advanced, peristent threat which means attacker silently penetrated the network using Double Pulsar backdoor leaked from NSA, and only delivered ransomware payload 2 weeks later. Moreover the original infection mechanism was propagaing without uer intervention (worm style) making original infection paricularly quick. This is also the reason why, despite high profile of the attack, we still do not know attack vector behind it.</p>
+					<p>Note that the vulnerability used by attacker was not zero day. Despite OS Vendors efforts to release fix early, there always will be some systems which cannot be patched on time either because it would break application or because OS management was skipped in product design phase (IoT).</p>
+				</td>
+				<td>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p>Go to the ssh window and execute <code>bin/run.sh</code></p>
+					<p>Talk through and hit refresh button.</p>
+				</td>
+				<td>
+					<p>Let us simulate the situation where future unknown variant of Wannacry gets installed somewhere on the network. Ideally it gets stopped on the perimeter, but that is not always possible. According to Verizon's 2016 <cite>Data Breach Investigation</cite> paper:
+						<ul>
+							<li>99% malware is only seen for 58 seconds or less</li>
+							<li>99,5% malware is unique to organization under attack</li>
+						</ul>
+					</p>
+					<p>On our simulated network there is FortiSanbox and FortiGate installed stopping all known threats on the spot and running analysis on the unknown ones. Sandboxing time is counted in minutes which means infections can be contained quickly across all organization and attack vectors but they cannot be ruled out.</p>
+				</td>
+				<td>
+				</td>
+			</tr>
+			<tr>
+				<td>
+				</td>
+				<td>
+				</td>
+				<td>
+				</td>
+			</tr>
+			<tr class="subheader_row">
+				<td colspan="3">Summary</td>
+			</tr>
+			<tr>
+				<td colspan="3">
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

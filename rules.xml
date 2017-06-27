@@ -20,18 +20,18 @@
         <GroupByAttr>srcIpAddr</GroupByAttr>
       </SubPattern>
       <Operator rank="1" type="FOLLOWED_BY"/>
-      <SubPattern id="1689904" name="increase_in_traffic_targets">
+      <SubPattern id="1689904" name="smb_targets_exceed_threshold">
         <SingleEvtConstr>destIpPort = 139  OR  destIpPort = 445</SingleEvtConstr>
-        <GroupEvtConstr>SUM(totFlows) &gt;= 10</GroupEvtConstr>
+        <GroupEvtConstr>COUNT(*) &gt;= 1  AND  COUNT(DISTINCT destIpAddr) &gt; 2</GroupEvtConstr>
         <GroupByAttr>srcIpAddr</GroupByAttr>
       </SubPattern>
       <Operator rank="0" type="OR"/>
-      <SubPattern id="1689901" name="excessive_outbound_smb_sessions">
+      <SubPattern id="1689901" name="smb_targets_exceed_baseline">
         <SingleEvtConstr>destIpPort = 139  OR  destIpPort = 445</SingleEvtConstr>
-        <GroupEvtConstr>COUNT(*) &gt;= 1  AND  COUNT(DISTINCT destIpAddr) &gt;= 2</GroupEvtConstr>
+        <GroupEvtConstr>(COUNT(DISTINCT destIpAddr)- STAT_AVG(maxDistinctDestIpAddr:125))/ STAT_STDDEV(maxDistinctDestIpAddr:125) &gt;= 3  AND  STAT_STDDEV(maxDistinctDestIpAddr:125) &gt; 0</GroupEvtConstr>
         <GroupByAttr>srcIpAddr</GroupByAttr>
       </SubPattern>
-      <GlobalConstr>malware_sent_to_host.srcIpAddr = excessive_outbound_smb_sessions.srcIpAddr OR malware_sent_to_host.srcIpAddr = excessive_outbound_smb_sessions.srcIpAddr</GlobalConstr>
+      <GlobalConstr>malware_sent_to_host.srcIpAddr = smb_targets_exceed_threshold.srcIpAddr OR malware_sent_to_host.srcIpAddr = smb_targets_exceed_baseline.srcIpAddr</GlobalConstr>
     </PatternClause>
     <userRoles/>
     <TriggerEventDisplay>

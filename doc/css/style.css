@@ -1,0 +1,23 @@
+body {
+	font-family: "Helvetica Neue", "sans-serif";
+}
+
+table {
+	width: 80%;
+	margin-left: 3%;
+}
+
+table, td{
+	border: 1px solid black;
+}
+
+.header_row td{
+	color: white;
+	font-weight: bold;
+	background-color: #2980B9;
+}
+
+.subheader_row td{
+	font-weight: bold;
+	text-align: center;
+}
