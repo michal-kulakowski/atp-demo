@@ -1,1 +1,0 @@
-/root/demo/2017/1_scenario_replay.sh
