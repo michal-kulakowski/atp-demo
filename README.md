@@ -17,11 +17,12 @@ Complex SIEM demo scenarios are time consuming to build. The goal of this packag
 	* `cd atp-demo`
 4. Set up file based discovery
 	* `./setup.sh`
+	* wait for the system to reboot
 5. Load the rule
 	* `view rules.xml`
 	* copy contents
-	* Click Analytics > Rules > Import
-	* Paste & Import
+	* click Analytics > Rules > Import
+	* paste & import
 6. Open doc/index.html with your browser and execute demo scenario described
 
 ## Future Enhancements
