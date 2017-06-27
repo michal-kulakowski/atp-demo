@@ -53,7 +53,8 @@
 			<tr>
 				<td>
 					<p>Go to the ssh window and execute <code>bin/run.sh</code></p>
-					<p>Talk through and hit refresh button.</p>
+					<p>Switch back to web console, then talk through and hit refresh button.</p>
+					<p>Observe <i>Wannacry attack detected</i> incident appear. It should take around 40 seconds from when script is run.</p>
 				</td>
 				<td>
 					<p>Let us simulate the situation where future unknown variant of Wannacry gets installed somewhere on the network. Ideally it gets stopped on the perimeter, but that is not always possible. According to Verizon's 2016 <cite>Data Breach Investigation</cite> paper:
@@ -63,6 +64,84 @@
 						</ul>
 					</p>
 					<p>On our simulated network there is FortiSanbox and FortiGate installed stopping all known threats on the spot and running analysis on the unknown ones. Sandboxing time is counted in minutes which means infections can be contained quickly across all organization and attack vectors but they cannot be ruled out.</p>
+				</td>
+				<td>
+					<a href="img/incident_detected.png"><img src="img/thumbnails/incident_detected.png"/></a>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p>Select the right incident. Click <i>Edit Rule</i> button.</p>
+				</td>
+				<td>
+					<p>As you san see incident is detected, let us have a look on the correlation logic behind and why does it take SIEM to find what has happened.</p>
+					<p>The rule looks for two triggers happening in sequence, within 300 seconds time window AND relating to the same source IP address. The security devices firing those triggers may and typically will be distinct. Big chunk of SIEM value is normalizing events coming form different sources so that they cna be compared and observed together.</p>
+					<p>In our demo scenario the first trigger was fired by logs from FortiSandbox which, upon analysis, found one payload downloaded over the web by one of the hosts to be high risk.</p>
+					<p>The second one is having two alternate implementations, either of them is sufficient to generate incident. The latter is SMB traffic from host flowing to larger than usual numer of distinct destination. Traffic baseline is used for comparison. In our environment we do not have real devices and hence traffic baseline cannot be generated. For this reason simpler alternative is provided comparing amount of distinct SMB traffic targets to a static threshold. We will discuss all of them momentarily.</p>
+				</td>
+				<td><a href="img/rule_details.png"><img src="img/thumbnails/rule_details.png"/></a>
+				</td>
+			</tr>
+			<tr>
+				<td>
+				</td>
+				<td>
+				</td>
+				<td>
+				</td>
+			</tr>
+			<tr>
+				<td>
+				</td>
+				<td>
+				</td>
+				<td>
+				</td>
+			</tr>
+			<tr>
+				<td>
+				</td>
+				<td>
+				</td>
+				<td>
+				</td>
+			</tr>
+			<tr>
+				<td>
+				</td>
+				<td>
+				</td>
+				<td>
+				</td>
+			</tr>
+			<tr>
+				<td>
+				</td>
+				<td>
+				</td>
+				<td>
+				</td>
+			</tr>
+			<tr>
+				<td>
+				</td>
+				<td>
+				</td>
+				<td>
+				</td>
+			</tr>
+			<tr>
+				<td>
+				</td>
+				<td>
+				</td>
+				<td>
+				</td>
+			</tr>
+			<tr>
+				<td>
+				</td>
+				<td>
 				</td>
 				<td>
 				</td>
