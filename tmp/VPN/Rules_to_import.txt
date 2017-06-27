@@ -1,0 +1,205 @@
+<Rules>
+<Rules>
+  <Rule advanced="true" active="true" fireInternalIncident="false" phIncidentCategory="Server" functionCategory="SECURITY">
+    <Name>Scanner found severe vulnerability - host IP</Name>
+    <Description>Detects a high severity vulnerability reported by a vulnerability scanner</Description>
+    <Remediation/>
+    <CustomerScope groupByEachCustomer="true">
+      <Include>2000</Include>
+      <Exclude/>
+    </CustomerScope>
+    <IncidentDef eventType="Scanner_found_severe_vulnerability_host_IP" eventTypeGroup="PH_SYS_EVENT_PH_RULE_SEC" fireFreq="86400" severity="9">
+      <ArgList>hostName = ScannerHighSev.hostName, hostIpAddr = ScannerHighSev.hostIpAddr, vulnName = ScannerHighSev.vulnName</ArgList>
+    </IncidentDef>
+    <DynWatchListDef/>
+    <PatternClause window="300">
+      <SubPattern id="1685140" name="ScannerHighSev">
+        <SingleEvtConstr>eventType IN (Group@PH_SYS_EVENT_Vulnerability)  AND  reptVendor IN ("Qualys","Nessus","nCircle","Rapid7","McAfee","Tenable","Fortinet")  AND  eventSeverity &gt;= 8</SingleEvtConstr>
+        <GroupEvtConstr>COUNT(*) &gt;= 1</GroupEvtConstr>
+        <GroupByAttr>hostName,hostIpAddr,vulnName</GroupByAttr>
+      </SubPattern>
+    </PatternClause>
+    <userRoles/>
+    <TriggerEventDisplay>
+      <AttrList>scanEnd, reptVendor, hostName, osType, vulnName, eventSeverity, vulnType, vulnCVEId, vulnBugTraqID, vulnScore, vulnConseq, rawEventMsg</AttrList>
+    </TriggerEventDisplay>
+  </Rule>
+</Rules>
+  <Rule advanced="true" active="true" fireInternalIncident="false" phIncidentCategory="Server" functionCategory="OTHER">
+    <Name>Possible Pass the Hash event found in Windows Logs</Name>
+    <Description>This rule is looking for a possible Pass the Hash event where EventID=4624 and Logon Type is 3 (network) and Auth Package Name is NTLM and TargetUserName != 'ANONYMOUS LOGON AND  TargetDomainName != Exclude Domains https://www.nsa.gov/ia/_files/app/Spotting_the_Adversary_with_Windows_Event_Log_Monitoring.pdf</Description>
+    <Remediation/>
+    <CustomerScope groupByEachCustomer="true">
+      <Include>2000</Include>
+      <Exclude/>
+    </CustomerScope>
+    <IncidentDef eventType="Possible_Pass_the_Hash_event_found_in_Windows_Logs" fireFreq="3600" severity="5">
+      <ArgList>reptDevIpAddr = Filter_1.reptDevIpAddr, destIpAddr = Filter_1.reptDevIpAddr</ArgList>
+    </IncidentDef>
+    <DynWatchListDef/>
+    <PatternClause window="300">
+      <SubPattern id="1721151" name="Filter_1">
+        <SingleEvtConstr>rawEventMsg CONTAIN "Authentication Package]=\"NTLM\""  AND  domain NOT IN ("ACCELOPS")  AND  winLogonType = 3  AND  eventType = "Win-Security-4625"  AND  domain NOT IN (Group@Watch_Lists_Exclude_Domains_0)</SingleEvtConstr>
+        <GroupEvtConstr>COUNT(*) &gt;= 1</GroupEvtConstr>
+        <GroupByAttr>reptDevIpAddr</GroupByAttr>
+      </SubPattern>
+    </PatternClause>
+    <userRoles/>
+    <TriggerEventDisplay>
+      <AttrList>phRecvTime,eventType,reptDevIpAddr,computer,srcIpAddr,destIpAddr,user,domain,rawEventMsg</AttrList>
+    </TriggerEventDisplay>
+  </Rule>
+  <Rule advanced="true" active="true" fireInternalIncident="false" phIncidentCategory="Network" functionCategory="SECURITY">
+    <Name>Permitted Traffic to FortiGuard Threat IP List</Name>
+    <Description>Detects network traffic to FortiGuard  Threat IP List</Description>
+    <Remediation/>
+    <CustomerScope groupByEachCustomer="true">
+      <Include>2000</Include>
+      <Exclude/>
+    </CustomerScope>
+    <IncidentDef eventType="Permitted_Traffic_to_FortiGuard_Threat_IP_List" eventTypeGroup="PH_SYS_EVENT_PH_RULE_SEC" fireFreq="86400" severity="9">
+      <ArgList>destIpAddr = Shadowserver.destIpAddr, srcIpAddr = Shadowserver.srcIpAddr, count = Shadowserver.COUNT(*)</ArgList>
+    </IncidentDef>
+    <DynWatchListDef/>
+    <PatternClause window="600">
+      <SubPattern id="1721159" name="Shadowserver">
+        <SingleEvtConstr>destIpAddr IN (Group@Malware_IPs_FortiGuard_Beta_0)  AND  eventType IN (Group@PH_SYS_EVENT_PermitTraffic)</SingleEvtConstr>
+        <GroupEvtConstr>COUNT(*) &gt;= 1</GroupEvtConstr>
+        <GroupByAttr>srcIpAddr,destIpAddr</GroupByAttr>
+      </SubPattern>
+    </PatternClause>
+    <userRoles/>
+    <TriggerEventDisplay>
+      <AttrList>phRecvTime, reptDevIpAddr, eventType, srcIpAddr, destIpAddr, ipProto, srcIpPort, destIpPort, rawEventMsg</AttrList>
+    </TriggerEventDisplay>
+  </Rule>
+  <Rule advanced="true" active="true" fireInternalIncident="false" phIncidentCategory="Network" functionCategory="OTHER">
+    <Name>Permitted Traffic from FortiGuard Threat IP List</Name>
+    <Description>Detects network traffic from FortiGuard Combine threat IP List</Description>
+    <Remediation/>
+    <CustomerScope groupByEachCustomer="true">
+      <Include>2000</Include>
+      <Exclude/>
+    </CustomerScope>
+    <IncidentDef eventType="Permitted_Traffic_from_FortiGuard_Threat_IP_List" fireFreq="86400" severity="9">
+      <ArgList>srcIpAddr = Shadowserver.srcIpAddr, destIpAddr = Shadowserver.destIpAddr</ArgList>
+    </IncidentDef>
+    <DynWatchListDef/>
+    <PatternClause window="600">
+      <SubPattern id="1690199" name="Shadowserver">
+        <SingleEvtConstr>srcIpAddr IN (Group@Malware_IPs_FortiGuard_Beta_0)  AND  eventType IN (Group@PH_SYS_EVENT_PermitTraffic)</SingleEvtConstr>
+        <GroupEvtConstr>COUNT(*) &gt;= 1</GroupEvtConstr>
+        <GroupByAttr>srcIpAddr,destIpAddr</GroupByAttr>
+      </SubPattern>
+    </PatternClause>
+    <userRoles/>
+    <TriggerEventDisplay>
+      <AttrList>phRecvTime, reptDevIpAddr, eventType, srcIpAddr, destIpAddr, ipProto, srcIpPort, destIpPort, rawEventMsg</AttrList>
+    </TriggerEventDisplay>
+  </Rule>
+  <Rule advanced="true" active="true" fireInternalIncident="false" phIncidentCategory="Server" functionCategory="SECURITY">
+    <Name>Malware hash match from FIM Agent</Name>
+    <Description>Detects a blacklisted malware hash match from FortiSIEM file monitoring.</Description>
+    <Remediation/>
+    <CustomerScope groupByEachCustomer="true">
+      <Include>2000</Include>
+      <Exclude/>
+    </CustomerScope>
+    <IncidentDef eventType="Malware_hash_match_from_FIM_Agent" eventTypeGroup="PH_SYS_EVENT_PH_RULE_SEC" fireFreq="86400" severity="10">
+      <ArgList>reptDevName = MalwareFound.reptDevName, filePath = MalwareFound.filePath, hashCode = MalwareFound.hashCode, destIpAddr = MalwareFound.reptDevIpAddr, compEventType = MalwareFound.eventType</ArgList>
+    </IncidentDef>
+    <DynWatchListDef/>
+    <PatternClause window="120">
+      <SubPattern id="1721150" name="MalwareFound">
+        <SingleEvtConstr>hashCode IN (Group@PH_SYS_MALWARE_HASH)  AND  eventType CONTAIN "AO-WUA-FileMon-"</SingleEvtConstr>
+        <GroupEvtConstr>COUNT(*) &gt;= 1</GroupEvtConstr>
+        <GroupByAttr>reptDevName,filePath,hashCode,reptDevIpAddr,eventType</GroupByAttr>
+      </SubPattern>
+    </PatternClause>
+    <userRoles/>
+    <TriggerEventDisplay>
+      <AttrList>phRecvTime,reptDevName,user,fileName,filePath,rawEventMsg</AttrList>
+    </TriggerEventDisplay>
+  </Rule>
+  <Rule advanced="true" active="true" fireInternalIncident="false" phIncidentCategory="Network" functionCategory="OTHER">
+    <Name>Heavy TCP Port Scan: Single Destination - Denied Traffic Followed by Permitted</Name>
+    <Description>Detects a host performing a port scan - this involves excessive denied TCP connections from the same source to many distinct ports on a host in a short period of time and followed by a permitted packet. The thresholds are at least 20 distinct ports in a 5 minute window</Description>
+    <Remediation/>
+    <CustomerScope groupByEachCustomer="true">
+      <Include>2000</Include>
+      <Exclude/>
+    </CustomerScope>
+    <IncidentDef eventType="Heavy_TCP_Port_Scan_Single_Destination_Denied_Traffic_Followed_by_Permitted" fireFreq="86400" severity="7">
+      <ArgList>srcIpAddr = deny.srcIpAddr, destIpAddr = deny.destIpAddr</ArgList>
+    </IncidentDef>
+    <DynWatchListDef attr="srcIpAddr">
+      <WatchList>PH_DYNLIST_HOST_SCANNER</WatchList>
+    </DynWatchListDef>
+    <PatternClause window="300">
+      <SubPattern id="1721152" name="deny">
+        <SingleEvtConstr>eventType IN (Group@PH_SYS_EVENT_DenyTraffic)  AND  ipProto IN (6,17)  AND  srcIpAddr NOT IN (Group@PH_SYS_APP_ACCELOPS)</SingleEvtConstr>
+        <GroupEvtConstr>COUNT(DISTINCT destIpPort) &gt;= 20</GroupEvtConstr>
+        <GroupByAttr>srcIpAddr,destIpAddr</GroupByAttr>
+      </SubPattern>
+      <Operator rank="0" type="FOLLOWED_BY"/>
+      <SubPattern id="1721153" name="permit">
+        <SingleEvtConstr>eventType IN (Group@PH_SYS_EVENT_PermitTraffic)  AND  ipProto IN (6,17)  AND  srcIpAddr NOT IN (Group@PH_SYS_APP_ACCELOPS)</SingleEvtConstr>
+        <GroupEvtConstr>COUNT(*) &gt;= 1</GroupEvtConstr>
+        <GroupByAttr>srcIpAddr,destIpAddr</GroupByAttr>
+      </SubPattern>
+      <GlobalConstr>deny.srcIpAddr = permit.srcIpAddr AND deny.destIpAddr = permit.destIpAddr</GlobalConstr>
+    </PatternClause>
+    <userRoles/>
+    <TriggerEventDisplay>
+      <AttrList>phRecvTime,eventType,srcIpAddr,destIpAddr,ipProto,srcIpPort,destIpPort,srcDestTCPFlags,reptDevIpAddr,rawEventMsg</AttrList>
+    </TriggerEventDisplay>
+  </Rule>
+  <Rule advanced="true" active="true" fireInternalIncident="false" phIncidentCategory="Application" functionCategory="OTHER">
+    <Name>Excessively Slow MS SQL Server DB Query</Name>
+    <Description>Detects that an SQL Server query took more than 5 minute to complete</Description>
+    <Remediation/>
+    <CustomerScope groupByEachCustomer="true">
+      <Include>2000</Include>
+      <Exclude/>
+    </CustomerScope>
+    <IncidentDef eventType="Excessively_Slow_SQL_Server_DB_Query" eventTypeGroup="PH_SYS_EVENT_PH_RULE_PERF" fireFreq="86400" severity="7">
+      <ArgList>hostName = LongQuery.hostName, hostIpAddr = LongQuery.hostIpAddr, dbName = LongQuery.dbName, instanceName = LongQuery.instanceName, command = LongQuery.command, dbQueryResponseTimeSec = LongQuery.AVG(dbQueryResponseTimeSec)</ArgList>
+    </IncidentDef>
+    <DynWatchListDef/>
+    <PatternClause window="120">
+      <SubPattern id="2782500" name="LongQuery">
+        <SingleEvtConstr>eventType = "PH_DEV_MON_PERF_MSSQL_TOP_QUERIES"</SingleEvtConstr>
+        <GroupEvtConstr>AVG(dbQueryResponseTimeSec) &gt; 300</GroupEvtConstr>
+        <GroupByAttr>hostName,hostIpAddr,dbName,instanceName,command</GroupByAttr>
+      </SubPattern>
+    </PatternClause>
+    <userRoles/>
+    <TriggerEventDisplay>
+      <AttrList>phRecvTime,hostIpAddr,dbName,instanceName,command,dbQueryResponseTimeSec,rawEventMsg</AttrList>
+    </TriggerEventDisplay>
+  </Rule>
+  <Rule advanced="true" active="true" fireInternalIncident="false" phIncidentCategory="Network" functionCategory="OTHER">
+    <Name>Authentication Attempts By A Known Host Scanner</Name>
+    <Description>A host that has previously scanned a system has now performed authentications against a system</Description>
+    <Remediation/>
+    <CustomerScope groupByEachCustomer="true">
+      <Include>2000</Include>
+      <Exclude/>
+    </CustomerScope>
+    <IncidentDef eventType="Authentication_Attempts_By_A_Known_Host_Scanner" fireFreq="3600" severity="9">
+      <ArgList>srcIpAddr = Filter_1.srcIpAddr, destIpAddr = Filter_1.destIpAddr</ArgList>
+    </IncidentDef>
+    <DynWatchListDef/>
+    <PatternClause window="300">
+      <SubPattern id="1690198" name="Filter_1">
+        <SingleEvtConstr>srcIpAddr IN (Group@PH_DYNLIST_HOST_SCANNER)  AND  eventType IN (Group@PH_SYS_EVENT_Logon,Group@PH_SYS_EVENT_LogonFailure)</SingleEvtConstr>
+        <GroupEvtConstr>COUNT(*) &gt;= 1</GroupEvtConstr>
+        <GroupByAttr>srcIpAddr,destIpAddr</GroupByAttr>
+      </SubPattern>
+    </PatternClause>
+    <userRoles/>
+    <TriggerEventDisplay>
+      <AttrList>phRecvTime,eventType,reptDevIpAddr,rawEventMsg,user,srcIpAddr,destIpAddr</AttrList>
+    </TriggerEventDisplay>
+  </Rule>
+</Rules>

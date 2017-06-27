@@ -1,0 +1,918 @@
+<Rules>
+  
+  <!-- another complex rule -->
+  <Rule group="PH_SYS_RULE_Perf_Network" id="PH_Rule_Stat_1B" phIncidentCategory="Network" function="SECURITY">
+    <Name>Sudden Increase In Permitted Traffic From Host</Name>
+    <active>true</active>
+    <Description> Detects traffic anomaly from a source. This means that the permitted traffic pattern from the source is statistically anomalous in the following sense: over a 15 minute time window: at least 100 permitted flows from this host and excessive traffic, peers or ports. Excessive traffic is detected from the number of permitted flows from the source and the total exchanged bytes more than three standard deviations away from mean for the current hour. Excessive peers amounts to more than twice the statistical average for the hour. Excessive destination ports amounts to more than five times the statistical average for the hour. </Description>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <IncidentDef eventType="PH_RULE_ANOMALY_TRAFFIC_FROM_SRC" severity="7">
+      <ArgList>
+        srcIpAddr = StatHighFlowFromSrc.srcIpAddr,
+	totFlows = StatHighFlowFromSrc.SUM(totFlows),
+	totBytes64 = StatHighFlowFromSrc.SUM(totBytes),
+	avgTotFlows = StatHighFlowFromSrc.STAT_AVG(SUM(totFlows):125),
+	sdevTotFlows = StatHighFlowFromSrc.STAT_STDDEV(SUM(totFlows):125),
+	avgTotBytes = StatHighFlowFromSrc.STAT_AVG(SUM(totBytes):125),
+	sdevTotBytes = StatHighFlowFromSrc.STAT_STDDEV(SUM(totBytes):125)
+      </ArgList>
+    </IncidentDef>
+    <DynWatchListDef attr="srcIpAddr">
+       <WatchList>PH_DYNLIST_TRAFFIC_ANOMALY</WatchList>
+    </DynWatchListDef> 
+    <PatternClause window="900">
+      <SubPattern displayName="StatHighFlowFromSrc" name="StatHighFlowFromSrc">
+	<SingleEvtConstr> 
+	  eventType IN (Group@PH_SYS_EVENT_PermitTraffic) AND 
+          reptDevIpAddr IN (Group@PH_SYS_DEVICE_FIREWALL,Group@PH_SYS_DEVICE_ROUTER_SWITCH) AND 
+          (ipProto = 17 OR ipProto = 6) AND 
+          srcIpAddr NOT IN (Group@PH_SYS_APP_ACCELOPS) 
+        </SingleEvtConstr>
+        <GroupEvtConstr> 
+	  SUM(totFlows) &gt;= 100 AND
+	  ((SUM(totFlows)-STAT_AVG(SUM(totFlows):125))/STAT_STDDEV(SUM(totFlows):125) &gt;= 3 AND   
+          (SUM(totBytes)-STAT_AVG(SUM(totBytes):125))/STAT_STDDEV(SUM(totBytes):125) &gt;= 3 AND 
+	  STAT_STDDEV(SUM(totFlows):125) &gt; 0 AND STAT_STDDEV(SUM(totBytes):125)&gt; 0)
+        </GroupEvtConstr>
+        <GroupByAttr> srcIpAddr </GroupByAttr>
+      </SubPattern>
+    </PatternClause>
+    <TriggerEventDisplay>
+      <AttrList> phRecvTime,eventType,srcIpAddr,destIpAddr,ipProto,srcIpPort,destIpPort,reptDevIpAddr,rawEventMsg </AttrList>
+    </TriggerEventDisplay>
+  </Rule>
+
+  <!-- another complex rule -->
+  <Rule group="PH_SYS_RULE_Perf_Network" id="PH_Rule_Stat_2B" phIncidentCategory="Network" function="SECURITY">
+    <Name>Sudden Increase In Permitted Traffic To Host</Name>
+    <active>true</active>
+    <Description> Detects traffic anomaly to a destination. This means that the permitted traffic pattern to the destination is statistically anomalous in the following sense: over a 15 minute time window, at least 500 permitted flows and excessive traffic, peers or ports. Excessive traffic is detected from the number of permitted flows destined to this host and total exchanged bytes more than three standard deviations away from mean for the current hour. Excessive peers amounts to more than twice the statistical average for the current hour. Excessive destination ports amounts to more than five times the statistical average for the current hour. </Description>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <IncidentDef eventType="PH_RULE_ANOMALY_TRAFFIC_TO_DEST" severity="7">
+      <ArgList>
+        destIpAddr = StatHighFlowToDest.destIpAddr,
+        totFlows = StatHighFlowToDest.SUM(totFlows),
+	totBytes64 = StatHighFlowToDest.SUM(totBytes),
+	avgTotFlows = StatHighFlowToDest.STAT_AVG(SUM(totFlows):126),
+	sdevTotFlows = StatHighFlowToDest.STAT_STDDEV(SUM(totFlows):126),
+	avgTotBytes = StatHighFlowToDest.STAT_AVG(SUM(totBytes):126),
+	sdevTotBytes = StatHighFlowToDest.STAT_STDDEV(SUM(totBytes):126)
+      </ArgList>
+    </IncidentDef>
+    <DynWatchListDef attr="destIpAddr">
+       <WatchList>PH_DYNLIST_TRAFFIC_ANOMALY</WatchList>
+    </DynWatchListDef> 
+    <PatternClause window="900">
+      <SubPattern displayName="StatHighFlowToDest" name="StatHighFlowToDest">
+	<SingleEvtConstr> 
+	  eventType IN (Group@PH_SYS_EVENT_PermitTraffic) AND 
+	  reptDevIpAddr IN (Group@PH_SYS_DEVICE_FIREWALL,Group@PH_SYS_DEVICE_ROUTER_SWITCH) AND 
+	  (ipProto = 17 OR ipProto = 6) AND 
+	  destIpAddr NOT IN (Group@PH_SYS_APP_ACCELOPS) 
+	</SingleEvtConstr>
+        <GroupEvtConstr> 
+	   SUM(totFlows) &gt;= 500 AND 
+	   ((SUM(totFlows)-STAT_AVG(SUM(totFlows):126))/STAT_STDDEV(SUM(totFlows):126) &gt;= 3 AND 
+           (SUM(totBytes)-STAT_AVG(SUM(totBytes):126))/STAT_STDDEV(SUM(totBytes):126) &gt;= 3 AND 
+	   STAT_STDDEV(SUM(totFlows):126) &gt; 0 AND STAT_STDDEV(SUM(totBytes):126)&gt; 0)
+        </GroupEvtConstr>
+        <GroupByAttr> destIpAddr </GroupByAttr>
+      </SubPattern>
+    </PatternClause>
+    <TriggerEventDisplay>
+      <AttrList> phRecvTime,eventType,srcIpAddr,destIpAddr,ipProto,srcIpPort,destIpPort,srcDestTCPFlags,reptDevIpAddr,rawEventMsg </AttrList>
+    </TriggerEventDisplay>
+  </Rule>
+
+  <!-- another complex rule -->
+  <Rule group="PH_SYS_RULE_Perf_Network" id="PH_Rule_Stat_4" phIncidentCategory="Network" function="SECURITY">
+    <Name>Sudden Increase in Firewall Permitted Inbound Traffic To A Specific TCP/UDP port</Name>
+    <active>true</active>
+    <Description> Detects traffic anomaly on inbound TCP/UDP port usage on a firewall. This means that over a 30 minute time window, the permitted inbound traffic (both number of flows and total bytes) to a specific TCP/UDP port is more than three standard deviations away than the average for the current hour. </Description>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <IncidentDef eventType="PH_RULE_ANOMALY_TRAFFIC_PERMIT_INBOUND_PORT" severity="7">
+      <ArgList>
+        ipProto = StatHighPort.ipProto,
+	destIpPort = StatHighPort.destIpPort,
+	totFlows = StatHighPort.SUM(totFlows),
+	totBytes64 = StatHighPort.SUM(totBytes),
+	avgTotFlows = StatHighPort.STAT_AVG(SUM(totFlows):104),
+	sdevTotFlows= StatHighPort.STAT_STDDEV(SUM(totFlows):104),
+	avgTotBytes = StatHighPort.STAT_AVG(SUM(totBytes):104),
+	sdevTotBytes = StatHighPort.STAT_STDDEV(SUM(totBytes):104)
+      </ArgList>
+    </IncidentDef>
+    <PatternClause window="1800">
+      <SubPattern displayName="StatHighPort" name="StatHighPort">
+	<SingleEvtConstr> 
+	  eventType IN (Group@PH_SYS_EVENT_PermitTraffic) AND 
+	  reptDevIpAddr IN (Group@PH_SYS_DEVICE_FIREWALL) AND 
+          srcIpAddr NOT IN (Group@PH_SYS_NETWORK_ENTERPRISE_INTERNAL_NET) 
+        </SingleEvtConstr>
+        <GroupEvtConstr> 
+	  (SUM(totFlows)-STAT_AVG(SUM(totFlows):104))/STAT_STDDEV(SUM(totFlows):104) &gt;= 3 AND 
+	  (SUM(totBytes)-STAT_AVG(SUM(totBytes):104))/STAT_STDDEV(SUM(totBytes):104) &gt;= 3 AND 
+	  STAT_STDDEV(SUM(totFlows):104) &gt; 0 AND 
+	  STAT_STDDEV(SUM(totBytes):104) &gt; 0
+        </GroupEvtConstr>
+        <GroupByAttr>destIpPort,ipProto </GroupByAttr>
+      </SubPattern>
+    </PatternClause>
+    <TriggerEventDisplay>
+      <AttrList> phRecvTime,eventType,srcIpAddr,destIpAddr,ipProto,srcIpPort,destIpPort,srcDestTCPFlags,reptDevIpAddr,rawEventMsg </AttrList>
+    </TriggerEventDisplay>
+  </Rule>
+
+  <!-- another complex rule -->
+  <Rule group="PH_SYS_RULE_Perf_Network" id="PH_Rule_Stat_5" phIncidentCategory="Network" function="SECURITY">
+    <Name>Sudden Increase In Firewall Permitted Outbound Traffic To A Specific TCP/UDP port</Name>
+    <active>true</active>
+    <Description> Detects traffic anomaly on outbound TCP/UDP port usage. Detects traffic anomaly on outbound TCP/UDP port usage on a firewall. This means that over a 30 minute time window, the permitted outbound traffic (both number of flows and total bytes) to a specific TCP/UDP port is more than 3 standard deviations away than the average for the current hour. </Description>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <IncidentDef eventType="PH_RULE_ANOMALY_TRAFFIC_PERMIT_OUTBOUND_PORT" severity="7">
+      <ArgList>
+        ipProto = StatHighPort.ipProto,
+        destIpPort = StatHighPort.destIpPort,
+	totFlows = StatHighPort.SUM(totFlows),
+	totBytes64 = StatHighPort.SUM(totBytes),
+	avgTotFlows = StatHighPort.STAT_AVG(SUM(totFlows):105),
+	sdevTotFlows= StatHighPort.STAT_STDDEV(SUM(totFlows):105),
+	avgTotBytes = StatHighPort.STAT_AVG(SUM(totBytes):105),
+	sdevTotBytes = StatHighPort.STAT_STDDEV(SUM(totBytes):105)
+      </ArgList>
+    </IncidentDef>
+    <PatternClause window="1800">
+      <SubPattern displayName="StatHighPort" name="StatHighPort">
+	<SingleEvtConstr> 
+	  eventType IN (Group@PH_SYS_EVENT_PermitTraffic) AND 
+          reptDevIpAddr IN (Group@PH_SYS_DEVICE_FIREWALL) AND 
+          srcIpAddr IN (Group@PH_SYS_NETWORK_ENTERPRISE_INTERNAL_NET) 
+        </SingleEvtConstr>
+        <GroupEvtConstr> 
+	  (SUM(totFlows)-STAT_AVG(SUM(totFlows):105))/STAT_STDDEV(SUM(totFlows):105) &gt;= 3 AND 
+          (SUM(totBytes)-STAT_AVG(SUM(totBytes):105))/STAT_STDDEV(SUM(totBytes):105) &gt;= 3 AND 
+	  STAT_STDDEV(SUM(totFlows):105) &gt; 0 AND 
+	  STAT_STDDEV(SUM(totBytes):105) &gt; 0
+        </GroupEvtConstr>
+        <GroupByAttr>destIpPort,ipProto</GroupByAttr>
+      </SubPattern>
+    </PatternClause>
+    <TriggerEventDisplay>
+      <AttrList> phRecvTime,eventType,srcIpAddr,destIpAddr,ipProto,srcIpPort,destIpPort,srcDestTCPFlags,reptDevIpAddr,rawEventMsg </AttrList>
+    </TriggerEventDisplay>
+  </Rule>
+
+  <!-- another complex rule -->
+  <Rule group="PH_SYS_RULE_Perf_Network" id="PH_Rule_Stat_6" phIncidentCategory="Network" function="SECURITY">
+    <Name>Sudden Increase In Firewall Denied Inbound Traffic To A Specific TCP/UDP port</Name>
+    <active>true</active>
+    <Description> Detects anomalous denied inbound traffic profile on a specific TCP/UDP port - over a 30 minute window, both the total number of denies and the number of unique source IP addresses are at least 3 standard deviations away from the mean for the current hour </Description>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <IncidentDef eventType="PH_RULE_ANOMALY_TRAFFIC_DENIED_INBOUND_PORT" severity="7">
+      <ArgList>
+        ipProto = StatHighPort.ipProto,
+        destIpPort = StatHighPort.destIpPort,
+        totEventCount = StatHighPort.COUNT(*),
+        avgTotFlows =StatHighPort.STAT_AVG(COUNT(*):106),
+        sdevTotFlows=StatHighPort.STAT_STDDEV(COUNT(*):106)
+      </ArgList>
+    </IncidentDef>
+    <PatternClause window="1800">
+      <SubPattern displayName="StatHighPort" name="StatHighPort">
+	<SingleEvtConstr> 
+	  reptDevIpAddr IN (Group@PH_SYS_DEVICE_FIREWALL) AND 
+	  eventType IN (Group@PH_SYS_EVENT_DenyTraffic) AND 
+	  srcIpAddr NOT IN (Group@PH_SYS_NETWORK_ENTERPRISE_INTERNAL_NET) 
+	</SingleEvtConstr>
+        <GroupEvtConstr> 
+	  (COUNT(*)-STAT_AVG(COUNT(*):106))/STAT_STDDEV(COUNT(*):106) &gt;= 3  AND
+	  STAT_STDDEV(COUNT(*):106) &gt; 0
+        </GroupEvtConstr>
+        <GroupByAttr>destIpPort,ipProto </GroupByAttr>
+      </SubPattern>
+    </PatternClause>
+    <TriggerEventDisplay>
+      <AttrList> phRecvTime,eventType,srcIpAddr,destIpAddr,ipProto,srcIpPort,destIpPort,srcDestTCPFlags,reptDevIpAddr,rawEventMsg </AttrList>
+    </TriggerEventDisplay>
+  </Rule>
+
+  <!-- another complex rule -->
+  <Rule group="PH_SYS_RULE_Perf_Network" id="PH_Rule_Stat_7" phIncidentCategory="Network" function="SECURITY">
+    <Name>Sudden Increase In Firewall Denied Outbound Traffic To A Specific TCP/UDP port</Name>
+    <active>true</active>
+    <Description>Detects anomalous denied outbound traffic profile on a specific TCP/UDP port - over a 30 minute window, both the total number of denies or the number of unique destination IP addresses are at least 3 standard deviations away from the mean for the current hour</Description>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <IncidentDef eventType="PH_RULE_ANOMALY_TRAFFIC_DENIED_OUTBOUND_PORT" severity="7">
+      <ArgList>
+        ipProto = StatHighPort.ipProto,
+        destIpPort = StatHighPort.destIpPort,
+        totEventCount = StatHighPort.COUNT(*),
+        avgTotFlows =StatHighPort.STAT_AVG(COUNT(*):107),
+        sdevTotFlows=StatHighPort.STAT_STDDEV(COUNT(*):107)
+      </ArgList>
+   </IncidentDef>
+   <PatternClause window="1800">
+      <SubPattern displayName="StatHighPort" name="StatHighPort">
+	<SingleEvtConstr> 
+	  reptDevIpAddr IN (Group@PH_SYS_DEVICE_FIREWALL) AND 
+	  eventType IN (Group@PH_SYS_EVENT_DenyTraffic) AND 
+	  srcIpAddr IN (Group@PH_SYS_NETWORK_ENTERPRISE_INTERNAL_NET) 
+	</SingleEvtConstr>
+        <GroupEvtConstr> 
+	  (COUNT(*)-STAT_AVG(COUNT(*):107))/STAT_STDDEV(COUNT(*):107) &gt;= 3  AND
+	  STAT_STDDEV(COUNT(*):107) &gt; 0
+        </GroupEvtConstr>
+        <GroupByAttr>destIpPort,ipProto </GroupByAttr>
+      </SubPattern>
+   </PatternClause>
+   <TriggerEventDisplay>
+      <AttrList> phRecvTime,eventType,srcIpAddr,destIpAddr,ipProto,srcIpPort,destIpPort,srcDestTCPFlags,reptDevIpAddr,rawEventMsg </AttrList>
+   </TriggerEventDisplay>
+  </Rule>
+
+  <!-- another complex rule -->
+  <Rule group="PH_SYS_RULE_Perf_Network" id="PH_Rule_Stat_9" phIncidentCategory="Network" function="SECURITY">
+    <Name>Sudden Increase in Network Interface Traffic</Name>
+    <active>true</active>
+    <Description>Detects anomaly in aggregate traffic on a router/switch port. Over a 30 minute window, both the total sent bytes or the total received bytes are more than 3 standard deviations away from the mean for the current hour </Description>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <IncidentDef eventType="PH_RULE_ANOMALY_TRAFFIC_NET_INTF" severity="7">
+      <ArgList>
+	hostName = NetIntfUsage.hostName,
+        hostIpAddr = NetIntfUsage.hostIpAddr,
+	intfName = NetIntfUsage.intfName,
+	sentBytes64 = NetIntfUsage.SUM(sentBytes64),
+	recvBytes64 = NetIntfUsage.SUM(recvBytes64),
+	avgSentBytes = NetIntfUsage.STAT_AVG(SUM(sentBytes64):110),
+	avgRecvBytes = NetIntfUsage.STAT_AVG(SUM(recvBytes64):110),
+	sdevSentBytes = NetIntfUsage.STAT_STDDEV(SUM(sentBytes64):110),
+	sdevRecvBytes = NetIntfUsage.STAT_STDDEV(SUM(recvBytes64):110)
+      </ArgList>
+   </IncidentDef>
+   <DynWatchListDef attr="hostName">
+       <WatchList>PH_DYNLIST_RESOURCE_ISSUE</WatchList>
+   </DynWatchListDef>  
+   <PatternClause window="1800">
+      <SubPattern displayName="NetIntfUsage" name="NetIntfUsage">
+	<SingleEvtConstr> eventType = "PH_DEV_MON_NET_INTF_UTIL" </SingleEvtConstr>
+        <GroupEvtConstr> 
+	  (SUM(sentBytes64)-STAT_AVG(SUM(sentBytes64):110))/STAT_STDDEV(SUM(sentBytes64):110) &gt;= 3 AND
+	  (SUM(recvBytes64)-STAT_AVG(SUM(recvBytes64):110))/STAT_STDDEV(SUM(recvBytes64):110) &gt;= 3  AND 
+	  STAT_STDDEV(SUM(sentBytes64):110) &gt; 0 AND 
+	  STAT_STDDEV(SUM(recvBytes64):110) &gt; 0
+        </GroupEvtConstr>
+        <GroupByAttr>hostName,hostIpAddr,intfName </GroupByAttr>
+      </SubPattern>
+   </PatternClause>
+   <TriggerEventDisplay>
+      <AttrList> phRecvTime,hostName,hostIpAddr,intfName,intfAlias,sentBytes64,recvBytes64,totBytes64 </AttrList>
+   </TriggerEventDisplay>
+  </Rule>
+
+  <!-- another complex rule -->
+  <Rule group="PH_SYS_RULE_Perf_Network" id="PH_Rule_Stat_10" phIncidentCategory="Network" function="SECURITY">
+    <Name>Sudden Increase in Network Interface Errors</Name>
+    <active>true</active>
+    <Description> Detects anomaly in interface errors seen on a router/switch port. Over a 30 minute window, either the total inbound or outbound interface errored packets or discarded packets is more than 3 standard deviations away from the mean. To detect significant issues, the average packet error or discarded packet error is more than 1 percent. </Description>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <IncidentDef eventType="PH_RULE_ANOMALY_ERROR_NET_INTF" severity="7">
+      <ArgList>
+	hostName = NetIntfError.hostName,
+        hostIpAddr = NetIntfError.hostIpAddr,
+	intfName = NetIntfError.intfName,
+	inIntfPktErr = NetIntfError.SUM(inIntfPktErr),
+	outIntfPktErr = NetIntfError.SUM(outIntfPktErr), 
+	inIntfPktDiscarded = NetIntfError.SUM(inIntfPktDiscarded),
+	outIntfPktDiscarded = NetIntfError.SUM(outIntfPktDiscarded),
+        inIntfPktErrPct = NetIntfError.AVG(inIntfPktErrPct),
+	outIntfPktErrPct = NetIntfError.AVG(outIntfPktErrPct),
+	inIntfPktDiscardedPct = NetIntfError.AVG(inIntfPktDiscardedPct),
+	outIntfPktDiscardedPct = NetIntfError.AVG(outIntfPktDiscardedPct),	
+	avgInIntfPktErr = NetIntfError.STAT_AVG(SUM(inIntfPktErr):111),
+	avgOutIntfPktErr = NetIntfError.STAT_AVG(SUM(outIntfPktErr):111), 
+	avgInIntfPktDiscarded = NetIntfError.STAT_AVG(SUM(inIntfPktDiscarded):111),
+	avgOutIntfPktDiscarded = NetIntfError.STAT_AVG(SUM(outIntfPktDiscarded):111)
+      </ArgList>
+   </IncidentDef>
+   <DynWatchListDef attr="hostName">
+     <WatchList>PH_DYNLIST_RESOURCE_ISSUE</WatchList>
+   </DynWatchListDef>  
+   <PatternClause window="1800">
+      <SubPattern displayName="NetIntfError" name="NetIntfError">
+	<SingleEvtConstr> eventType = "PH_DEV_MON_NET_INTF_UTIL" </SingleEvtConstr>
+        <GroupEvtConstr> 
+          (AVG(inIntfPktErrPct) &gt;= 1.0 AND STAT_AVG(SUM(inIntfPktErr):111) &gt; 0 AND SUM(inIntfPktErr) &gt;=  2.0 * STAT_AVG(SUM(inIntfPktErr):111)) OR
+	  (AVG(outIntfPktErrPct) &gt;= 1.0 AND STAT_AVG(SUM(outIntfPktErr):111) &gt; 0 AND SUM(outIntfPktErr) &gt;= 2.0 * STAT_AVG(SUM(outIntfPktErr):111)) OR 
+	  (AVG(inIntfPktDiscardedPct) &gt;= 1.0 AND STAT_AVG(SUM(inIntfPktDiscarded):111) &gt; 0 AND SUM(inIntfPktDiscarded) &gt;= 2.0 * STAT_AVG(SUM(inIntfPktDiscarded):111)) OR
+	  (AVG(outIntfPktDiscardedPct) &gt;= 1.0 AND STAT_AVG(SUM(outIntfPktDiscarded):111) &gt; 0 AND SUM(outIntfPktDiscarded) &gt;= 2.0 * STAT_AVG(SUM(outIntfPktDiscarded):111))
+        </GroupEvtConstr>
+        <GroupByAttr>hostName,hostIpAddr,intfName</GroupByAttr>
+      </SubPattern>
+   </PatternClause>
+   <TriggerEventDisplay>
+      <AttrList> phRecvTime,hostIpAddr,intfName,intfAlias,sentBytes64,recvBytes64,totBytes,inIntfPktErr,outIntfPktErr,inIntfPktDiscarded,outIntfPktDiscarded</AttrList>
+   </TriggerEventDisplay>
+  </Rule>
+
+  <!-- another complex rule -->
+  <Rule group="PH_SYS_RULE_Perf_Network" id="PH_Rule_Stat_11" phIncidentCategory="Network" function="SECURITY">
+    <Name> Sudden Increase In Firewall Connections</Name>
+    <active>true</active>
+    <Description> Detects sudden increase in permitted firewall connections. Over a 30 minute window, the current firewall connections is more than 3 standard deviations away from the mean.</Description>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <IncidentDef eventType="PH_RULE_ANOMALY_FW_CONN" severity="7">
+      <ArgList>
+	hostName = StatHighConn.hostName,
+        hostIpAddr = StatHighConn.hostIpAddr,
+        fwConnCount = StatHighConn.AVG(fwConnCount),
+	avgFwConnCount = StatHighConn.STAT_AVG(AVG(fwConnCount):112),
+	sdevFwConnCount = StatHighConn.STAT_STDDEV(AVG(fwConnCount):112)
+      </ArgList>
+    </IncidentDef>
+    <PatternClause window="1800">
+      <SubPattern displayName="StatHighConn" name="StatHighConn">
+	<SingleEvtConstr> eventType = "PH_DEV_MON_FW_CONN_UTIL" 
+        </SingleEvtConstr>
+        <GroupEvtConstr> 
+	  (AVG(fwConnCount)-STAT_AVG(AVG(fwConnCount):112))/STAT_STDDEV(AVG(fwConnCount):112) &gt;= 3  AND 
+	  STAT_STDDEV(AVG(fwConnCount):112) &gt; 0
+        </GroupEvtConstr>
+        <GroupByAttr>hostName,hostIpAddr</GroupByAttr>
+      </SubPattern>
+    </PatternClause>
+    <TriggerEventDisplay>
+      <AttrList> phRecvTime,eventType,hostName,hostIpAddr,fwConnCount </AttrList>
+    </TriggerEventDisplay>
+  </Rule>
+  
+  <!-- another complex rule -->
+  <Rule group="PH_SYS_RULE_Perf_Network" id="PH_Rule_Stat_12" phIncidentCategory="Network" function="SECURITY">
+    <Name> Sudden Increase In DNS Requests From A Specific Host</Name>
+    <active>true</active>
+    <Description> Detects sudden increase in DNS requests from a specific source IP - over a 15 minute period, a particular source IP is either doing excessive DNS requests or resolving excessive distinct names. Excessive DNS requests is defined as at least 100 requests and current count is 3 standard deviations away from mean for the current hour. Excessive Destination names is defined as 50 distinct name resolutions and current count is more than 3 standard deviations away from the mean for the current hour </Description>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <IncidentDef eventType="PH_RULE_ANOMALY_DNS_DEST" severity="7">
+      <ArgList>
+        srcIpAddr = DNSConn.srcIpAddr
+      </ArgList>
+    </IncidentDef>
+    <DynWatchListDef attr="srcIpAddr">
+      <WatchList>PH_DYNLIST_TRAFFIC_ANOMALY</WatchList>
+    </DynWatchListDef>  
+    <PatternClause window="900">
+      <SubPattern displayName="DNSConn" name="DNSConn">
+	<SingleEvtConstr> destIpPort = 53 AND eventType IN (Group@PH_SYS_EVENT_PermitTraffic)
+        </SingleEvtConstr>
+        <GroupEvtConstr> 
+	  (COUNT(*)-STAT_AVG(COUNT(*):113))/STAT_STDDEV(COUNT(*):113) &gt;= 3  AND STAT_STDDEV(COUNT(*):113) &gt; 0 AND COUNT(*) &gt;= 100
+        </GroupEvtConstr>
+        <GroupByAttr>srcIpAddr</GroupByAttr>
+      </SubPattern>
+    </PatternClause>
+    <TriggerEventDisplay>
+      <AttrList>phRecvTime,eventType,srcIpAddr,destIpAddr,ipProto,srcIpPort,destIpPort,destName,sentBytes,recvBytes,totBytes</AttrList>
+    </TriggerEventDisplay>
+  </Rule>
+
+  <!-- another complex rule -->
+  <Rule group="PH_SYS_RULE_Perf_Network" id="PH_Rule_Stat_12B" phIncidentCategory="Network" function="SECURITY">
+    <Name> Sudden Change In DNS Data Transfer Pattern From A Specific Host</Name>
+    <active>true</active>
+    <Description> Detects sudden change in DNS data transfer pattern from a specific IP - over a 15 minute period, either the sent or received bytes is more than 3 standard deviations away from the mean and more than 1 MB of trafic is exchanged in the corresponding direction. </Description>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <IncidentDef eventType="PH_RULE_ANOMALY_DNS_TRAFFIC" severity="7">
+      <ArgList>
+        srcIpAddr = DNSConn.srcIpAddr,
+	sentBytes64 = DNSConn.SUM(sentBytes),
+	recvBytes64 = DNSConn.SUM(recvBytes),
+	avgSentBytes = DNSConn.STAT_AVG(SUM(sentBytes):113),
+	avgRecvBytes = DNSConn.STAT_AVG(SUM(recvBytes):113),
+	sdevSentBytes = DNSConn.STAT_STDDEV(SUM(sentBytes):113),
+	sdevRecvBytes = DNSConn.STAT_STDDEV(SUM(recvBytes):113)
+      </ArgList>
+    </IncidentDef>
+    <DynWatchListDef attr="srcIpAddr">
+      <WatchList>PH_DYNLIST_TRAFFIC_ANOMALY</WatchList>
+    </DynWatchListDef>  
+    <PatternClause window="900">
+      <SubPattern displayName="DNSConn" name="DNSConn">
+	<SingleEvtConstr> destIpPort = 53 AND eventType IN (Group@PH_SYS_EVENT_PermitTraffic)
+        </SingleEvtConstr>
+        <GroupEvtConstr> 
+	  ((SUM(sentBytes)-STAT_AVG(SUM(sentBytes):113))/STAT_STDDEV(SUM(sentBytes):113) &gt;= 3 AND STAT_STDDEV(SUM(sentBytes):113) &gt; 0 AND SUM(sentBytes) &gt;= 1048576) OR
+	  ((SUM(recvBytes)-STAT_AVG(SUM(recvBytes):113))/STAT_STDDEV(SUM(recvBytes):113) &gt;= 3 AND STAT_STDDEV(SUM(recvBytes):113) &gt; 0 AND SUM(recvBytes) &gt;= 1048576)                
+        </GroupEvtConstr>
+        <GroupByAttr>srcIpAddr</GroupByAttr>
+      </SubPattern>
+    </PatternClause>
+    <TriggerEventDisplay>
+      <AttrList> phRecvTime,eventType,srcIpAddr,destIpAddr,ipProto,srcIpPort,destIpPort,destName,sentBytes,recvBytes</AttrList>
+    </TriggerEventDisplay>
+  </Rule>
+
+  <!-- another complex rule -->
+  <Rule group="PH_SYS_RULE_Perf_Network" id="PH_Rule_Stat_13" phIncidentCategory="Network" function="PERFORMANCE">
+    <Name>Sudden Increase In System CPU Usage</Name>
+    <active>true</active>
+    <Description> Detects sudden increase in CPU usage - current average over 30 minute interval is more than 3 standard deviations away from the mean and the current average is at least 50 percent </Description>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <IncidentDef eventType="PH_RULE_ANOMALY_CPU_USAGE" severity="7">
+      <ArgList>
+	hostName = StatResource.hostName,
+        hostIpAddr = StatResource.hostIpAddr,
+	cpuUtil = StatResource.AVG(cpuUtil),
+	avgCpuUtil = StatResource.STAT_AVG(AVG(cpuUtil):109),
+	sdevCpuUtil = StatResource.STAT_STDDEV(AVG(cpuUtil):109)
+      </ArgList>
+   </IncidentDef>
+   <DynWatchListDef attr="hostName">
+     <WatchList>PH_DYNLIST_RESOURCE_ISSUE</WatchList>
+   </DynWatchListDef>   
+   <PatternClause window="1800">
+      <SubPattern displayName="StatResource" name="StatResource">
+	<SingleEvtConstr> eventType = "PH_DEV_MON_SYS_CPU_UTIL" </SingleEvtConstr>
+        <GroupEvtConstr> (AVG(cpuUtil)-STAT_AVG(AVG(cpuUtil):109))/STAT_STDDEV(AVG(cpuUtil):109) &gt;= 3 AND AVG(cpuUtil) &gt;= 50 AND COUNT(*) &gt;= 3 AND STAT_STDDEV(AVG(cpuUtil):109) &gt; 0
+        </GroupEvtConstr>
+        <GroupByAttr>hostName,hostIpAddr</GroupByAttr>
+      </SubPattern>
+   </PatternClause>
+   <TriggerEventDisplay>
+      <AttrList> phRecvTime,eventType,hostIpAddr,cpuUtil,rawEventMsg </AttrList>
+   </TriggerEventDisplay>
+  </Rule>
+  
+  <!-- another complex rule -->
+  <Rule group="PH_SYS_RULE_Perf_Network" id="PH_Rule_Stat_14" phIncidentCategory="Network" function="PERFORMANCE">
+    <Name>Sudden Increase in System Memory Usage</Name>
+    <active>true</active>
+    <Description> Detects a sudden increase in system memory usage - over a 30 minute interval, either the physical or virtual memory is 25% more than the statistical average over that same time period and the current physical memory usage is at least 50% </Description>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <IncidentDef eventType="PH_RULE_ANOMALY_MEM_USAGE" severity="7">
+      <ArgList>
+	hostName = StatResource.hostName,
+        hostIpAddr = StatResource.hostIpAddr,
+	memUtil = StatResource.AVG(memUtil),
+	virtMemUtil = StatResource.AVG(virtMemUtil),
+	avgMemUtil = StatResource.STAT_AVG(AVG(memUtil):109),
+	avgVirtMemUtil = StatResource.STAT_AVG(AVG(virtMemUtil):109)
+      </ArgList>
+    </IncidentDef>
+    <DynWatchListDef attr="hostName">
+     <WatchList>PH_DYNLIST_RESOURCE_ISSUE</WatchList>
+   </DynWatchListDef>  
+   <PatternClause window="1800">
+      <SubPattern displayName="StatResource" name="StatResource">
+	<SingleEvtConstr> eventType = "PH_DEV_MON_SYS_MEM_UTIL" </SingleEvtConstr>
+        <GroupEvtConstr> 
+	  ((AVG(memUtil) &gt;= 1.25 * STAT_AVG(AVG(memUtil):109) AND  AVG(memUtil) &gt;= 50) OR 
+	  (AVG(virtMemUtil) &gt;= 1.25 * STAT_AVG(AVG(virtMemUtil):109) AND  AVG(virtMemUtil) &gt;= 65)) AND COUNT(*) &gt;= 3
+        </GroupEvtConstr>
+        <GroupByAttr>hostName,hostIpAddr</GroupByAttr>
+      </SubPattern>
+   </PatternClause>
+   <TriggerEventDisplay>
+      <AttrList> phRecvTime,eventType,hostIpAddr,memUtil,virtMemUtil,rawEventMsg </AttrList>
+   </TriggerEventDisplay>
+  </Rule>
+
+  <!-- another complex rule -->
+  <Rule group="PH_SYS_RULE_Perf_Network" id="PH_Rule_Stat_15" phIncidentCategory="Network" function="PERFORMANCE">
+    <Name>Sudden Increase in Disk I/O </Name>
+    <active>true</active>
+    <Description> Detects anomaly in disk I/O usage for servers, VMs and ESX hosts - over a 30 minute interval, either the read or write volume is more than 3 standard deviations away from the mean over that same time period and the read/write volume is at least 1 Mbps </Description>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <IncidentDef eventType="PH_RULE_ANOMALY_DISKIO_USAGE" severity="7">
+      <ArgList>
+	hostName = StatResource.hostName,
+        hostIpAddr = StatResource.hostIpAddr,
+	diskName = StatResource.diskName,
+	datastore = StatResource.datastore,
+	diskReadKBytesPerSec = StatResource.AVG(diskReadKBytesPerSec),
+	diskWriteKBytesPerSec = StatResource.AVG(diskWriteKBytesPerSec),
+	avgDiskReadKBytesPerSec = StatResource.STAT_AVG(AVG(diskReadKBytesPerSec):121),
+	avgDiskWriteKBytesPerSec = StatResource.STAT_AVG(AVG(diskWriteKBytesPerSec):121),
+	sdevDiskReadKBytesPerSec = StatResource.STAT_STDDEV(AVG(diskReadKBytesPerSec):121),
+	sdevDiskWriteKBytesPerSec = StatResource.STAT_STDDEV(AVG(diskWriteKBytesPerSec):121)
+      </ArgList>
+   </IncidentDef>
+    <DynWatchListDef attr="hostName">
+     <WatchList>PH_DYNLIST_RESOURCE_ISSUE</WatchList>
+   </DynWatchListDef>  
+   <PatternClause window="1800">
+      <SubPattern displayName="StatResource" name="StatResource">
+	<SingleEvtConstr> eventType IN ("PH_DEV_MON_DISK_IO_UTIL","PH_DEV_MON_VM_DISK_IO","PH_DEV_MON_ESX_DISK_IO") </SingleEvtConstr>
+        <GroupEvtConstr> 
+	  ((AVG(diskReadKBytesPerSec)-STAT_AVG(AVG(diskReadKBytesPerSec):121))/STAT_STDDEV(AVG(diskReadKBytesPerSec):121) &gt;= 3 AND STAT_STDDEV(AVG(diskReadKBytesPerSec):121) &gt; 0 AND 
+	  AVG(diskReadKBytesPerSec) &gt;= 1048576) OR
+	  ((AVG(diskWriteKBytesPerSec)-STAT_AVG(AVG(diskWriteKBytesPerSec):121))/STAT_STDDEV(AVG(diskWriteKBytesPerSec):121) &gt;= 3 AND STAT_STDDEV(AVG(diskWriteKBytesPerSec):121) &gt; 0 AND 
+	  AVG(diskWriteKBytesPerSec) &gt;= 1048576)
+        </GroupEvtConstr>
+        <GroupByAttr>hostName,hostIpAddr,diskName,datastore</GroupByAttr>
+      </SubPattern>
+   </PatternClause>
+   <TriggerEventDisplay>
+      <AttrList> phRecvTime,eventType,hostIpAddr,diskName,datastore,diskReadKBytesPerSec,diskWriteKBytesPerSec,rawEventMsg </AttrList>
+   </TriggerEventDisplay>
+  </Rule>
+
+  <!-- another complex rule -->
+  <Rule group="PH_SYS_RULE_Perf_Network" id="PH_Rule_Stat_17" phIncidentCategory="Network" function="AVAILABILITY">
+    <Name>Sudden Increase in Reported Events From A Host</Name>
+    <active>true</active>
+    <Description> Detects that a reporting device is suddenly reporting more events. The current average over a 30 minute time window is more than 3 times the standard deviation and also 50% more than the statistical mean. </Description>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <IncidentDef eventType="PH_RULE_ANOMALY_INCREASING_EPS" severity="7">
+      <ArgList>
+	hostName = Events.reptDevName,
+        hostIpAddr = Events.reptDevIpAddr,
+	eventsPerSec = Events.AVG(eventsPerSec),
+	avgEventsPerSec = Events.STAT_AVG(AVG(eventsPerSec):116),
+	sdevEventsPerSec = Events.STAT_STDDEV(AVG(eventsPerSec):116)
+      </ArgList>
+   </IncidentDef>
+   <PatternClause window="1800">
+      <SubPattern displayName="Events" name="Events">
+	<SingleEvtConstr>
+	  phEventCategory = 3 AND 
+	  eventType = "PH_SYSTEM_IP_EVENTS_PER_SEC"
+	</SingleEvtConstr>
+        <GroupEvtConstr> 
+	  (AVG(eventsPerSec)-STAT_AVG(AVG(eventsPerSec):116))/STAT_STDDEV(AVG(eventsPerSec):116) &gt;= 3 AND 
+	  AVG(eventsPerSec) &gt;= 1.5 * STAT_AVG(AVG(eventsPerSec):116) AND 
+	  AVG(eventsPerSec) &gt;= 100 AND STAT_STDDEV(AVG(eventsPerSec):116) &gt; 0
+        </GroupEvtConstr>
+        <GroupByAttr>reptDevName,reptDevIpAddr</GroupByAttr>
+      </SubPattern>
+   </PatternClause>
+   <TriggerEventDisplay>
+      <AttrList> phRecvTime,eventType,reptDevIpAddr,eventsPerSec,rawEventMsg </AttrList>
+   </TriggerEventDisplay>
+  </Rule>
+
+  <!-- another complex rule -->
+  <Rule group="PH_SYS_RULE_Perf_Network" id="PH_Rule_Stat_18" phIncidentCategory="Network" function="AVAILABILITY">
+    <Name>Sudden Decrease in Reported Events From A Host</Name>
+    <active>true</active>
+    <Description> Detects that a reporting device is suddenly reporting less events. The current average over the one hour time window is less than 3 times the standard deviation and also 50% less than the statistical mean </Description>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <IncidentDef eventType="PH_RULE_ANOMALY_DECREASING_EPS" severity="7">
+      <ArgList>
+	hostName = Events.reptDevName,
+        hostIpAddr = Events.reptDevIpAddr,
+	eventsPerSec = Events.AVG(eventsPerSec),
+	avgEventsPerSec = Events.STAT_AVG(AVG(eventsPerSec):116),
+	sdevEventsPerSec = Events.STAT_STDDEV(AVG(eventsPerSec):116)
+      </ArgList>
+   </IncidentDef>
+   <PatternClause window="600">
+      <SubPattern displayName="Events" name="Events">
+	<SingleEvtConstr>
+	  phEventCategory = 3 AND 
+	  eventType = "PH_SYSTEM_IP_EVENTS_PER_SEC"
+	</SingleEvtConstr>
+        <GroupEvtConstr> 
+	  (AVG(eventsPerSec)-STAT_AVG(AVG(eventsPerSec):116))/STAT_STDDEV(AVG(eventsPerSec):116) &lt;= -3 AND 
+	  AVG(eventsPerSec) &lt;= 0.5 * STAT_AVG(AVG(eventsPerSec):116) AND 
+	  STAT_STDDEV(AVG(eventsPerSec):116) &gt; 0
+        </GroupEvtConstr>
+        <GroupByAttr>reptDevName,reptDevIpAddr</GroupByAttr>
+      </SubPattern>
+   </PatternClause>
+   <TriggerEventDisplay>
+      <AttrList> phRecvTime,eventType,reptDevIpAddr,eventsPerSec,rawEventMsg </AttrList>
+   </TriggerEventDisplay>
+  </Rule>
+
+  <!-- another complex rule -->
+  <Rule group="PH_SYS_RULE_Perf_Network" id="PH_Rule_Stat_19" phIncidentCategory="Network" function="SECURITY">
+    <Name>Sudden Increase in Outbound Firewall Aggregate Denies </Name>
+    <active>true</active>
+    <Description> Detects that a firewall is seeing a sudden increase in outbound denied traffic - over a 30 minute window, either the number of denied flows or the number of distinct denied source ip addresses is more than 3 standard deviations away from the mean </Description>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <IncidentDef eventType="PH_RULE_ANOMALY_OUTBOUND_AGGR_DENY" severity="7">
+      <ArgList>
+	hostName = Denies.reptDevName,
+        hostIpAddr = Denies.reptDevIpAddr,
+	totFlows = Denies.COUNT(*),
+	avgTotFlows = Denies.STAT_AVG(COUNT(*):108),
+	sdevTotFlows = Denies.STAT_STDDEV(COUNT(*):108)
+      </ArgList>
+   </IncidentDef>
+   <PatternClause window="1800">
+      <SubPattern displayName="Denies" name="Denies">
+	<SingleEvtConstr>
+	  reptDevIpAddr IN (Group@PH_SYS_DEVICE_FIREWALL) AND 
+	  eventType IN (Group@PH_SYS_EVENT_DenyTraffic) AND 
+	  srcIpAddr IN (Group@PH_SYS_NETWORK_ENTERPRISE_INTERNAL_NET) AND 
+	  destIpAddr NOT IN (Group@PH_SYS_NETWORK_ENTERPRISE_INTERNAL_NET) 
+	</SingleEvtConstr>
+        <GroupEvtConstr> 
+	  COUNT(*) &gt;= 1000 AND 
+	  (COUNT(*)-STAT_AVG(COUNT(*):108))/STAT_STDDEV(COUNT(*):108) &gt;= 3 AND 
+	  STAT_STDDEV(COUNT(*):108) &gt; 0
+        </GroupEvtConstr>
+        <GroupByAttr>reptDevName,reptDevIpAddr</GroupByAttr>
+      </SubPattern>
+   </PatternClause>
+   <TriggerEventDisplay>
+      <AttrList> phRecvTime,eventType,reptDevName,reptDevIpAddr,srcIpAddr,destIpAddr,destIpPort </AttrList>
+   </TriggerEventDisplay>
+  </Rule>
+
+  <!-- another complex rule -->
+  <Rule group="PH_SYS_RULE_Perf_Network" id="PH_Rule_Stat_20" phIncidentCategory="Network" function="SECURITY">
+    <Name>Sudden Increase in Inbound Firewall Aggregate Denies </Name>
+    <active>true</active>
+    <Description> Detects that a firewall is seeing a sudden increase inbound denied traffic - over a 30 minute window, either the number of denied flows or the number of distinct denied source ip addresses is more than 3 standard deviations away from the mean </Description>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <IncidentDef eventType="PH_RULE_ANOMALY_INBOUND_AGGR_DENY" severity="7">
+      <ArgList>
+	hostName = Denies.reptDevName,
+        hostIpAddr = Denies.reptDevIpAddr,
+	totFlows = Denies.COUNT(*),
+	avgTotFlows = Denies.STAT_AVG(COUNT(*):108),
+	sdevTotFlows = Denies.STAT_STDDEV(COUNT(*):108)
+      </ArgList>
+   </IncidentDef>
+   <PatternClause window="1800">
+      <SubPattern displayName="Denies" name="Denies">
+	<SingleEvtConstr>
+	  reptDevIpAddr IN (Group@PH_SYS_DEVICE_FIREWALL) AND 
+	  eventType IN (Group@PH_SYS_EVENT_DenyTraffic) AND 
+	  srcIpAddr NOT IN (Group@PH_SYS_NETWORK_ENTERPRISE_INTERNAL_NET) AND 
+	  destIpAddr IN (Group@PH_SYS_NETWORK_ENTERPRISE_INTERNAL_NET) 
+	</SingleEvtConstr>
+        <GroupEvtConstr> 
+	  COUNT(*) &gt;= 1000 AND 
+	  (STAT_STDDEV(COUNT(*):108) &gt; 0 AND (COUNT(*)-STAT_AVG(COUNT(*):108))/STAT_STDDEV(COUNT(*):108) &gt;= 3)
+        </GroupEvtConstr>
+        <GroupByAttr>reptDevName,reptDevIpAddr</GroupByAttr>
+      </SubPattern>
+   </PatternClause>
+   <TriggerEventDisplay>
+      <AttrList> phRecvTime,eventType,reptDevName,reptDevIpAddr,srcIpAddr,destIpAddr,destIpPort </AttrList>
+   </TriggerEventDisplay>
+  </Rule>
+
+  <!-- another complex rule -->
+  <Rule group="PH_SYS_RULE_Perf_Network" id="PH_Rule_Stat_21" phIncidentCategory="Network" function="SECURITY">
+    <Name>Sudden Increase in ICMP Requests From A Host</Name>
+    <active>true</active>
+    <Description> Detects that a host is making excessive ICMP requests - both the volume and the number of distinct destinations is more than twice the statistical average and at least 100 ICMP requests </Description>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <IncidentDef eventType="PH_RULE_ANOMALY_EXCESS_ICMP" severity="7">
+      <ArgList>
+        srcIpAddr = Icmp.srcIpAddr,
+	totFlows = Icmp.COUNT(*),
+	avgTotFlows = Icmp.STAT_AVG(COUNT(*):114)
+      </ArgList>
+   </IncidentDef>
+    <DynWatchListDef attr="srcIpAddr">
+      <WatchList>PH_DYNLIST_TRAFFIC_ANOMALY</WatchList>
+    </DynWatchListDef>  
+   <PatternClause window="1800">
+      <SubPattern displayName="Icmp" name="Icmp">
+	<SingleEvtConstr>
+	  ipProto = 1 AND reptDevIpAddr IN (Group@PH_SYS_DEVICE_FIREWALL,Group@PH_SYS_DEVICE_ROUTER_SWITCH) 
+	</SingleEvtConstr>
+        <GroupEvtConstr>
+	  COUNT(*) &gt;= 100 AND 
+	  COUNT(*) &gt;= 2.0 * STAT_AVG(COUNT(*):114)
+        </GroupEvtConstr>
+        <GroupByAttr>srcIpAddr</GroupByAttr>
+      </SubPattern>
+   </PatternClause>
+   <TriggerEventDisplay>
+      <AttrList> phRecvTime,eventType,reptDevName,reptDevIpAddr,srcIpAddr,destIpAddr,destIpPort </AttrList>
+   </TriggerEventDisplay>
+  </Rule>
+
+  <!-- another complex rule -->
+  <Rule group="PH_SYS_RULE_Perf_Server" id="PH_Rule_Stat_22" phIncidentCategory="Server" function="PERFORMANCE">
+    <Name>Sudden Increase in Server Process Count </Name>
+    <active>true</active>
+    <Description> Detects that a server is suddenly running 25% more processes than the average</Description>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <IncidentDef eventType="PH_RULE_ANOMALY_HIGH_PROCESS_COUNT" severity="7">
+      <ArgList>
+	hostName = Process.hostName,
+        hostIpAddr = Process.hostIpAddr,
+	procCount = Process.AVG(procCount),
+	avgProcCount = Process.STAT_AVG(AVG(procCount):117)
+      </ArgList>
+   </IncidentDef>
+   <DynWatchListDef attr="hostName">
+     <WatchList>PH_DYNLIST_RESOURCE_ISSUE</WatchList>
+   </DynWatchListDef>  
+   <PatternClause window="1800">
+      <SubPattern displayName="Process" name="Process">
+	<SingleEvtConstr>
+	  eventType = "PH_DEV_MON_SYS_PROC_COUNT"
+	</SingleEvtConstr>
+        <GroupEvtConstr>
+	  AVG(procCount) &gt;= 1.25 * STAT_AVG(AVG(procCount):117) AND COUNT(*) &gt;= 3
+        </GroupEvtConstr>
+        <GroupByAttr>hostName,hostIpAddr</GroupByAttr>
+      </SubPattern>
+   </PatternClause>
+   <TriggerEventDisplay>
+      <AttrList> phRecvTime,eventType,hostName,hostIpAddr,procCount </AttrList>
+   </TriggerEventDisplay>
+  </Rule>
+
+  <!-- another complex rule -->
+  <Rule group="PH_SYS_RULE_Perf_Server" id="PH_Rule_Stat_23" phIncidentCategory="Server" function="SECURITY">
+    <Name>Sudden Increase in Successful Logons To A Host</Name>
+    <active>true</active>
+    <Description> Detects a sudden 50% increase of successful logons and 25% more distinct users or 100% more distinct source IP addresses to a particular server - over a 30 minute window </Description>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <IncidentDef eventType="PH_RULE_ANOMALY_SUCCESSFUL_LOGON" severity="7">
+      <ArgList>
+	hostName = Logon.reptDevName,
+        hostIpAddr = Logon.reptDevIpAddr,
+	count = Logon.COUNT(*),
+	avgMatchedEvents = Logon.STAT_AVG(COUNT(*):115)
+      </ArgList>
+   </IncidentDef>
+   <PatternClause window="1800">
+      <SubPattern displayName="Logon" name="Logon">
+	<SingleEvtConstr>
+	  eventType IN (Group@PH_SYS_EVENT_HostLogonSuccess)
+	</SingleEvtConstr>
+        <GroupEvtConstr>
+	  COUNT(*) &gt;= 10 AND 
+	  COUNT(*) &gt;= 1.50 * STAT_AVG(COUNT(*):115)
+        </GroupEvtConstr>
+        <GroupByAttr>reptDevName,reptDevIpAddr</GroupByAttr>
+      </SubPattern>
+   </PatternClause>
+   <TriggerEventDisplay>
+      <AttrList> phRecvTime,eventType,reptDevName,reptDevIpAddr,user </AttrList>
+   </TriggerEventDisplay>
+  </Rule>
+
+  <!-- another complex rule -->
+  <Rule group="PH_SYS_RULE_Perf_Server" id="PH_Rule_Stat_24" phIncidentCategory="Server" function="SECURITY">
+    <Name>Sudden Increase in Failed Logons To A Host</Name>
+    <active>true</active>
+    <Description> Detects a sudden 50% increase of failed logons and 25% more distinct users to a particular host - over a 30 minute window </Description>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <IncidentDef eventType="PH_RULE_ANOMALY_FAILED_LOGON" severity="7">
+      <ArgList>
+	hostName = Logon.reptDevName,
+        hostIpAddr = Logon.reptDevIpAddr,
+	count = Logon.COUNT(*),
+	avgMatchedEvents = Logon.STAT_AVG(COUNT(*):122)
+      </ArgList>
+   </IncidentDef>
+   <PatternClause window="1800">
+      <SubPattern displayName="Logon" name="Logon">
+	<SingleEvtConstr>
+	  eventType IN (Group@PH_SYS_EVENT_HostLogonFailure)
+	</SingleEvtConstr>
+        <GroupEvtConstr>
+	  COUNT(*) &gt;= 10 AND 
+	  COUNT(*) &gt;= 1.50 * STAT_AVG(COUNT(*):122)
+        </GroupEvtConstr>
+        <GroupByAttr>reptDevName,reptDevIpAddr</GroupByAttr>
+      </SubPattern>
+   </PatternClause>
+   <TriggerEventDisplay>
+      <AttrList> phRecvTime,eventType,reptDevName,reptDevIpAddr,user </AttrList>
+   </TriggerEventDisplay>
+  </Rule>
+
+  <!-- another complex rule -->
+  <Rule group="PH_SYS_RULE_Perf_App" id="PH_Rule_Stat_25" phIncidentCategory="Application" function="AVAILABILITY">
+    <Name>Sudden Increase in STM Response Times</Name>
+    <active>true</active>
+    <Description> Detects a sudden 50% increase of Synthetic Transaction Monitoring Response Times over a 30 minute time window </Description>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <IncidentDef eventType="PH_RULE_ANOMALY_STM_RESP_TIME" severity="7">
+      <ArgList>
+	hostName = STM.hostName,
+        endUserMonitorName = STM.endUserMonitorName,
+	appResponseTimeMSec = STM.AVG(appResponseTimeMSec),
+	avgAppResponseTimeMSec = STM.STAT_AVG(AVG(appResponseTimeMSec):123)
+      </ArgList>
+   </IncidentDef>
+    <DynWatchListDef attr="hostName">
+     <WatchList>PH_DYNLIST_APPL_ISSUE</WatchList>
+   </DynWatchListDef>  
+   <PatternClause window="1800">
+      <SubPattern displayName="STM" name="STM">
+	<SingleEvtConstr>
+	  eventType = "PH_DEV_MON_EUM_SUCCESS" 
+	</SingleEvtConstr>
+        <GroupEvtConstr>
+	  COUNT(*) &gt;= 3 AND 
+	  AVG(appResponseTimeMSec) &gt;= 1.50 * STAT_AVG(AVG(appResponseTimeMSec):123) 
+        </GroupEvtConstr>
+        <GroupByAttr>hostName,endUserMonitorName</GroupByAttr>
+      </SubPattern>
+   </PatternClause>
+   <TriggerEventDisplay>
+      <AttrList> phRecvTime,eventType,hostName,hostIpAddr,endUserMonitorName,appResponseTimeMSec</AttrList>
+   </TriggerEventDisplay>
+  </Rule>
+
+  <Rule group="PH_SYS_RULE_Perf_App" id="PH_Rule_Stat_26" phIncidentCategory="Application" function="AVAILABILITY">
+    <Name>Sudden Increase in Ping Response Times</Name>
+    <active>true</active>
+    <Description> Detects a sudden 100% increase of Ping Response Times over a 30 minute time window </Description>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <IncidentDef eventType="PH_RULE_ANOMALY_PING_RESP_TIME" severity="7">
+      <ArgList>
+	hostName = Ping.hostName,
+	avgDurationMSec = Ping.AVG(avgDurationMSec),
+	avgAvgDurationMSec = Ping.STAT_AVG(AVG(avgDurationMSec):127)
+      </ArgList>
+   </IncidentDef>
+    <DynWatchListDef attr="hostName">
+     <WatchList>PH_DYNLIST_APPL_ISSUE</WatchList>
+   </DynWatchListDef>  
+   <PatternClause window="1800">
+      <SubPattern displayName="Ping" name="Ping">
+	<SingleEvtConstr>
+	  eventType = "PH_DEV_MON_PING_STAT" 
+	</SingleEvtConstr>
+        <GroupEvtConstr>
+	  COUNT(*) &gt;= 3 AND 
+	  AVG(avgDurationMSec) &gt;= 50 AND 
+	  AVG(avgDurationMSec) &gt;= 2.0 * STAT_AVG(AVG(avgDurationMSec):127) 
+        </GroupEvtConstr>
+        <GroupByAttr>hostName</GroupByAttr>
+      </SubPattern>
+   </PatternClause>
+   <TriggerEventDisplay>
+      <AttrList> phRecvTime,eventType,hostName,hostIpAddr,avgDurationMSec,pktLossPct</AttrList>
+   </TriggerEventDisplay>
+  </Rule>
+
+  <Rule group="PH_SYS_RULE_Perf_App" id="PH_Rule_Stat_27" phIncidentCategory="Application" function="AVAILABILITY">
+    <Name>Sudden Increase in SNMP Response Times</Name>
+    <active>true</active>
+    <Description> Detects a sudden 100% increase of SNMP Response Times over a 30 minute time window </Description>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <IncidentDef eventType="PH_RULE_ANOMALY_SNMP_RESP_TIME" severity="7">
+      <ArgList>
+	hostName = SNMP.hostName,
+	avgDurationMSec = SNMP.AVG(avgDurationMSec),
+	avgAvgDurationMSec = SNMP.STAT_AVG(AVG(avgDurationMSec):128)
+      </ArgList>
+   </IncidentDef>
+    <DynWatchListDef attr="hostName">
+     <WatchList>PH_DYNLIST_APPL_ISSUE</WatchList>
+   </DynWatchListDef>  
+   <PatternClause window="1800">
+      <SubPattern displayName="SNMP" name="SNMP">
+	<SingleEvtConstr>
+	  eventType = "PH_DEV_MON_SNMP_PING_STAT" 
+	</SingleEvtConstr>
+        <GroupEvtConstr>
+	  COUNT(*) &gt;= 3 AND 
+	  AVG(avgDurationMSec) &gt;= 50 AND 
+	  AVG(avgDurationMSec) &gt;= 2.0 * STAT_AVG(AVG(avgDurationMSec):128) 
+        </GroupEvtConstr>
+        <GroupByAttr>hostName</GroupByAttr>
+      </SubPattern>
+   </PatternClause>
+   <TriggerEventDisplay>
+      <AttrList> phRecvTime,eventType,hostName,hostIpAddr,avgDurationMSec,pktLossPct</AttrList>
+   </TriggerEventDisplay>
+  </Rule>
+
+  <Rule group="PH_SYS_RULE_Perf_App" id="PH_Rule_Stat_28" phIncidentCategory="Application" function="AVAILABILITY">
+    <Name>Sudden Increase in WMI Response Times</Name>
+    <active>true</active>
+    <Description> Detects a sudden 50% increase of WMI Response Times over a 30 minute time window </Description>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <IncidentDef eventType="PH_RULE_ANOMALY_WMI_RESP_TIME" severity="7">
+      <ArgList>
+	hostName = WMI.hostName,
+	avgDurationMSec = WMI.AVG(avgDurationMSec),
+	avgAvgDurationMSec = WMI.STAT_AVG(AVG(avgDurationMSec):129)
+      </ArgList>
+   </IncidentDef>
+    <DynWatchListDef attr="hostName">
+     <WatchList>PH_DYNLIST_APPL_ISSUE</WatchList>
+   </DynWatchListDef>  
+   <PatternClause window="1800">
+      <SubPattern displayName="WMI" name="WMI">
+	<SingleEvtConstr>
+	  eventType = "PH_DEV_MON_WMI_PING_STAT" 
+	</SingleEvtConstr>
+        <GroupEvtConstr>
+	  COUNT(*) &gt;= 3 AND 
+	  AVG(avgDurationMSec) &gt;= 100 AND 
+	  AVG(avgDurationMSec) &gt;= 1.50 * STAT_AVG(AVG(avgDurationMSec):129) 
+        </GroupEvtConstr>
+        <GroupByAttr>hostName</GroupByAttr>
+      </SubPattern>
+   </PatternClause>
+   <TriggerEventDisplay>
+      <AttrList> phRecvTime,eventType,hostName,hostIpAddr,avgDurationMSec,pktLossPct</AttrList>
+   </TriggerEventDisplay>
+  </Rule>
+
+</Rules>

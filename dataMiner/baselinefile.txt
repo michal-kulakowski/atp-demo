@@ -1,0 +1,476 @@
+  <!-- ************************************************************ -->
+  <Report id="PH_Report_Baseline_1" group="PH_SYS_REPORT_Baseline" baseline="true">
+    <Name> Inbound Firewall Permitted TCP/UDP Port Usage Profile </Name>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <Description> This report provides baseline of permitted inbound TCP/UDP port usage. The data is reported by firewall logs. For every inbound destination port and protocol combination, the total number of unique sources, destinations and the total bytes and flows are reported </Description>
+    <SelectClause numEntries="All">
+        <AttrList> profDateType, hourOfDay, ipProto,destIpPort, avgDistinctSrcIpAddr, avgDistinctDestIpAddr, avgTotFlows, avgTotBytes,sdevTotFlows,sdevTotBytes </AttrList>
+    </SelectClause>
+    <OrderByClause> <AttrList> profDateType ASC, hourOfDay ASC, avgTotFlows DESC  </AttrList></OrderByClause>
+    <ReportInterval><Window unit="Hourly" val="1"/></ReportInterval>
+    <PatternClause window="3600">
+       <SubPattern displayName="Filter_Router_11" name="Filter_Router_11">
+           <SingleEvtConstr> eventType = "PH_PROF_ET_104_IN_PORT_USAGE" </SingleEvtConstr>
+      </SubPattern>
+    </PatternClause>
+    <RelevantFilterAttr>srcIpAddr, destIpAddr</RelevantFilterAttr>
+  </Report>
+###
+  <!-- ************************************************************ -->
+  <Report id="PH_Report_Baseline_2" group="PH_SYS_REPORT_Baseline" baseline="true">
+    <Name> Outbound Firewall Permitted TCP/UDP Port Usage Profile </Name>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <Description> This report provides baseline of permitted outbound TCP/UDP port usage.The data is reported by firewall logs.For every outbound destination port and protocol combination, the total number of unique sources, destinations and the total bytes and flows are reported </Description>
+    <SelectClause numEntries="All">
+        <AttrList> profDateType, hourOfDay, ipProto,destIpPort, avgDistinctSrcIpAddr, avgDistinctDestIpAddr,avgTotFlows, avgTotBytes,sdevTotFlows,sdevTotBytes </AttrList>
+    </SelectClause>
+    <OrderByClause> <AttrList> profDateType ASC, hourOfDay ASC, avgTotFlows DESC  </AttrList></OrderByClause>
+    <ReportInterval><Window unit="Hourly" val="1"/></ReportInterval>
+    <PatternClause window="3600">
+       <SubPattern displayName="Filter_Router_11" name="Filter_Router_11">
+           <SingleEvtConstr> eventType = "PH_PROF_ET_105_OUT_PORT_USAGE" </SingleEvtConstr>
+      </SubPattern>
+    </PatternClause>
+    <RelevantFilterAttr>srcIpAddr, destIpAddr</RelevantFilterAttr>
+  </Report>
+###
+  <!-- ************************************************************ -->
+  <Report id="PH_Report_Baseline_3" group="PH_SYS_REPORT_Baseline" baseline="true">
+    <Name> Inbound Firewall Denied TCP/UDP Port Profile </Name>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <Description> This report provides baseline of denied inbound TCP/UDP port usage.The data is reported by firewall logs. For every port, the number of denied attempts and the number of distinct source and destination ip addresses are profiled. </Description>
+    <SelectClause numEntries="All">
+        <AttrList> profDateType, hourOfDay, ipProto,destIpPort, avgMatchedEvents,avgDistinctSrcIpAddr,sdevMatchedEvents, sdevDistinctSrcIpAddr </AttrList>
+    </SelectClause>
+    <OrderByClause> <AttrList> profDateType ASC, hourOfDay ASC, avgMatchedEvents DESC  </AttrList></OrderByClause>
+    <ReportInterval><Window unit="Hourly" val="1"/></ReportInterval>
+    <PatternClause window="3600">
+       <SubPattern displayName="Filter_Router_11" name="Filter_Router_11">
+           <SingleEvtConstr> eventType = "PH_PROF_ET_106_IN_DENIED_PORT" </SingleEvtConstr>
+      </SubPattern>
+    </PatternClause>
+    <RelevantFilterAttr>srcIpAddr, destIpAddr</RelevantFilterAttr>
+  </Report>
+###
+  <!-- ************************************************************ -->
+  <Report id="PH_Report_Baseline_4" group="PH_SYS_REPORT_Baseline" baseline="true">
+    <Name> Outbound Firewall Denied TCP/UDP Port Usage  </Name>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <Description> This report provides baseline of denied outbound TCP/UDP port usage.The data is reported by firewall logs. For every port, the number of denied attempts and the number of distinct source and destination ip addresses are profiled. </Description>
+    <SelectClause numEntries="All">
+        <AttrList> profDateType, hourOfDay, ipProto,destIpPort, avgMatchedEvents </AttrList>
+    </SelectClause>
+    <OrderByClause> <AttrList> profDateType ASC, hourOfDay ASC, avgMatchedEvents DESC,avgDistinctDestIpAddr,sdevDistinctDestIpAddr </AttrList></OrderByClause>
+    <ReportInterval><Window unit="Hourly" val="1"/></ReportInterval>
+    <PatternClause window="3600">
+       <SubPattern displayName="Filter_Router_11" name="Filter_Router_11">
+           <SingleEvtConstr> eventType = "PH_PROF_ET_107_OUT_DENIED_PORT" </SingleEvtConstr>
+      </SubPattern>
+    </PatternClause>
+    <RelevantFilterAttr>srcIpAddr, destIpAddr</RelevantFilterAttr>
+  </Report>
+###
+  <!-- ************************************************************ -->
+  <Report id="PH_Report_Baseline_5" group="PH_SYS_REPORT_Baseline" baseline="true">
+    <Name> Firewall Denied Aggregate Traffic Profile </Name>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <Description> This profile captures the amount of denied traffic and the distinct ports on a per firewall basis. </Description>
+    <SelectClause numEntries="All">
+        <AttrList> profDateType, hourOfDay, reptDevName,reptDevIpAddr,avgMatchedEvents,avgDistinctDestIpPort,avgDistinctSrcIpAddr,avgDistinctDestIpAddr </AttrList>
+    </SelectClause>
+    <OrderByClause> <AttrList> profDateType ASC, hourOfDay ASC, avgMatchedEvents DESC  </AttrList></OrderByClause>
+    <ReportInterval><Window unit="Hourly" val="1"/></ReportInterval>
+    <PatternClause window="3600">
+       <SubPattern displayName="Filter_Router_11" name="Filter_Router_11">
+           <SingleEvtConstr> eventType = "PH_PROF_ET_108_DENIED_VOL_DIST_PORT" </SingleEvtConstr>
+      </SubPattern>
+    </PatternClause>
+    <RelevantFilterAttr>srcIpAddr, destIpAddr</RelevantFilterAttr>
+  </Report>
+###
+  <!-- ************************************************************ -->
+  <Report id="PH_Report_Baseline_6" group="PH_SYS_REPORT_Baseline" baseline="true">
+    <Name> Device CPU, Memory Usage Profile </Name>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <Description> This report provides baselines cpu, memory usage profile </Description>
+    <SelectClause numEntries="All">
+        <AttrList> profDateType,hourOfDay,hostName,hostIpAddr,avgCpuUtil,avgMemUtil,avgVirtMemUtil,sdevCpuUtil,sdevMemUtil,sdevVirtMemUtil</AttrList>
+    </SelectClause>
+    <OrderByClause> <AttrList> profDateType ASC, hourOfDay ASC, avgCpuUtil DESC  </AttrList></OrderByClause>
+    <ReportInterval><Window unit="Hourly" val="1"/></ReportInterval>
+    <PatternClause window="3600">
+       <SubPattern displayName="Filter_Router_11" name="Filter_Router_11">
+           <SingleEvtConstr> eventType = "PH_PROF_ET_109_HOST_RESOURCE" </SingleEvtConstr>
+      </SubPattern>
+    </PatternClause>
+    <RelevantFilterAttr>hostIpAddr</RelevantFilterAttr>
+  </Report>
+###
+  <!-- ************************************************************ -->
+  <Report id="PH_Report_Baseline_6B" group="PH_SYS_REPORT_Baseline" baseline="true">
+    <Name> Device Disk I/O Profile </Name>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <Description> This report provides baselines disk I/O usage for servers, VMs and ESX</Description>
+    <SelectClause numEntries="All">
+        <AttrList> profDateType,hourOfDay,hostName,hostIpAddr,diskName,datastore,avgDiskReadKBytesPerSec,avgDiskWriteKBytesPerSec,sdevDiskReadKBytesPerSec,sdevDiskWriteKBytesPerSec </AttrList>
+    </SelectClause>
+    <OrderByClause> <AttrList> profDateType ASC, hourOfDay ASC, avgDiskReadKBytesPerSec DESC  </AttrList></OrderByClause>
+    <ReportInterval><Window unit="Hourly" val="1"/></ReportInterval>
+    <PatternClause window="3600">
+       <SubPattern displayName="Filter_Router_11" name="Filter_Router_11">
+           <SingleEvtConstr> eventType = "PH_PROF_ET_121_HOST_DISKIO" </SingleEvtConstr>
+      </SubPattern>
+    </PatternClause>
+    <RelevantFilterAttr>hostIpAddr</RelevantFilterAttr>
+  </Report>
+###
+  <!-- ************************************************************ -->
+  <Report id="PH_Report_Baseline_7" group="PH_SYS_REPORT_Baseline" baseline="true">
+    <Name> Network Interface Traffic Profile </Name>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <Description> This report provides baselines for network interface traffic </Description>
+    <SelectClause numEntries="All">
+        <AttrList> profDateType,hourOfDay,hostName,hostIpAddr,intfName,avgSentBytes64,avgRecvBytes64,sdevSentBytes64,sdevRecvBytes64</AttrList>
+    </SelectClause>
+    <OrderByClause> <AttrList> profDateType ASC, hourOfDay ASC, avgSentBytes64 DESC  </AttrList></OrderByClause>
+    <ReportInterval><Window unit="Hourly" val="1"/></ReportInterval>
+    <PatternClause window="3600">
+       <SubPattern displayName="Filter_Router_11" name="Filter_Router_11">
+           <SingleEvtConstr> eventType = "PH_PROF_ET_110_TRAFFIC_BY_INTF" </SingleEvtConstr>
+      </SubPattern>
+    </PatternClause>
+    <RelevantFilterAttr>hostIpAddr</RelevantFilterAttr>
+  </Report>
+###
+ 
+  <!-- ************************************************************ -->
+  <Report id="PH_Report_Baseline_8" group="PH_SYS_REPORT_Baseline" baseline="true">
+    <Name> Network Interface Error Profile   </Name>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <Description> This report provides baselines network interface errors and discards </Description>
+    <SelectClause numEntries="All">
+        <AttrList> profDateType,hourOfDay,hostName,hostIpAddr,intfName,intfAlias,avgInIntfPktErr,avgOutIntfPktErr,avgInIntfPktDiscarded, avgOutIntfPktDiscarded</AttrList>
+    </SelectClause>
+    <OrderByClause> <AttrList> profDateType ASC, hourOfDay ASC, avgInIntfPktErr DESC </AttrList></OrderByClause>
+    <ReportInterval><Window unit="Hourly" val="1"/></ReportInterval>
+    <PatternClause window="3600">
+       <SubPattern displayName="Filter_Router_11" name="Filter_Router_11">
+           <SingleEvtConstr> eventType = "PH_PROF_ET_111_ERROR_BY_INTF"  </SingleEvtConstr>
+      </SubPattern>
+    </PatternClause>
+    <RelevantFilterAttr>hostIpAddr</RelevantFilterAttr>
+  </Report>
+###
+ 
+  <!-- ************************************************************ -->
+  <Report id="PH_Report_Baseline_9" group="PH_SYS_REPORT_Baseline" baseline="true">
+    <Name> Firewall Connection Count Profile   </Name>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <Description> This report provides baseline of permitted firewall connection count </Description>
+    <SelectClause numEntries="All">
+        <AttrList> profDateType,hourOfDay,hostName,hostIpAddr,avgFwConnCount </AttrList>
+    </SelectClause>
+    <OrderByClause> <AttrList> profDateType ASC, hourOfDay ASC, avgFwConnCount DESC </AttrList></OrderByClause>
+    <ReportInterval><Window unit="Hourly" val="1"/></ReportInterval>
+    <PatternClause window="3600">
+       <SubPattern displayName="Filter_Router_11" name="Filter_Router_11">
+           <SingleEvtConstr> eventType = "PH_PROF_ET_112_FW_CONN" </SingleEvtConstr>
+      </SubPattern>
+    </PatternClause>
+    <RelevantFilterAttr>hostIpAddr</RelevantFilterAttr>
+  </Report>
+###
+  
+  <!-- ************************************************************ -->
+  <Report id="PH_Report_Baseline_10" group="PH_SYS_REPORT_Baseline" baseline="true">
+    <Name> DNS Request Profile </Name>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <Description> This report baselines DNS requests on a per client basis: the number of requests and distinct destinations it attempted to resolve.</Description>
+    <SelectClause numEntries="All">
+        <AttrList> profDateType,hourOfDay,srcIpAddr,avgMatchedEvents,avgDistinctDestName,sdevMatchedEvents,sdevDistinctDestName </AttrList>
+    </SelectClause>
+    <OrderByClause> <AttrList> profDateType ASC, hourOfDay ASC,avgMatchedEvents DESC </AttrList></OrderByClause>
+    <ReportInterval><Window unit="Hourly" val="1"/></ReportInterval>
+    <PatternClause window="3600">
+       <SubPattern displayName="Filter_Router_11" name="Filter_Router_11">
+           <SingleEvtConstr> eventType = "PH_PROF_ET_113_DNS_REQ" </SingleEvtConstr>
+      </SubPattern>
+    </PatternClause>
+    <RelevantFilterAttr>hostIpAddr</RelevantFilterAttr>
+  </Report>  
+###
+  <!-- ************************************************************ -->
+  <Report id="PH_Report_Baseline_10B" group="PH_SYS_REPORT_Baseline" baseline="true">
+    <Name> DNS Traffic Profile </Name>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <Description> This report baselines DNS traffic characteristics on a per client basis: sent and receive bytes and packets.</Description>
+    <SelectClause numEntries="All">
+      <AttrList> profDateType,hourOfDay,srcIpAddr,avgTotBytes,avgSentBytes,avgRecvBytes,sdevTotBytes,sdevSentBytes,sdevRecvBytes</AttrList>
+    </SelectClause>
+    <OrderByClause> <AttrList> profDateType ASC, hourOfDay ASC,avgTotBytes DESC </AttrList></OrderByClause>
+    <ReportInterval><Window unit="Hourly" val="1"/></ReportInterval>
+    <PatternClause window="3600">
+       <SubPattern displayName="Filter_Router_11" name="Filter_Router_11">
+           <SingleEvtConstr> eventType = "PH_PROF_ET_113_DNS_REQ" </SingleEvtConstr>
+       </SubPattern>
+    </PatternClause>
+    <RelevantFilterAttr>hostIpAddr</RelevantFilterAttr>
+  </Report>  
+###
+  
+  <!-- ************************************************************ -->
+  <Report id="PH_Report_Baseline_11" group="PH_SYS_REPORT_Baseline" baseline="true">
+    <Name> ICMP Traffic Profile  </Name>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <Description> This report baseline client ICMP traffic: number of ICMP packets and number of distinct destinations </Description>
+    <SelectClause numEntries="All">
+        <AttrList> profDateType, hourOfDay,srcIpAddr,avgMatchedEvents,avgDistinctDestIpAddr,avgTotBytes</AttrList>
+    </SelectClause>
+    <OrderByClause> <AttrList> profDateType ASC, hourOfDay ASC, avgMatchedEvents DESC </AttrList></OrderByClause>
+    <ReportInterval><Window unit="Hourly" val="1"/></ReportInterval>
+    <PatternClause window="3600">
+       <SubPattern displayName="Filter_Router_11" name="Filter_Router_11">
+           <SingleEvtConstr> eventType = "PH_PROF_ET_114_ICMP_REQ" </SingleEvtConstr>
+      </SubPattern>
+    </PatternClause>
+    <RelevantFilterAttr>hostIpAddr</RelevantFilterAttr>
+  </Report> 
+###
+  <!-- ************************************************************ -->
+  <Report id="PH_Report_Baseline_12" group="PH_SYS_REPORT_Baseline" baseline="true">
+    <Name> Successful Logon Profile </Name>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <Description> This report baseline successful logon activity at a host </Description>
+    <SelectClause numEntries="All">
+        <AttrList> profDateType,hourOfDay,reptDevName,reptDevIpAddr,avgMatchedEvents,avgDistinctUser,avgDistinctSrcIpAddr</AttrList>
+    </SelectClause>
+    <OrderByClause> <AttrList> profDateType ASC, hourOfDay ASC,avgMatchedEvents DESC </AttrList></OrderByClause>
+    <ReportInterval><Window unit="Hourly" val="1"/></ReportInterval>
+    <PatternClause window="3600">
+       <SubPattern displayName="Filter_Router_11" name="Filter_Router_11">
+           <SingleEvtConstr> eventType = "PH_PROF_ET_115_LOGON_SUCCESS" </SingleEvtConstr>
+      </SubPattern>
+    </PatternClause>
+    <RelevantFilterAttr>reptDevIpAddr</RelevantFilterAttr>
+  </Report>  
+###
+  <!-- ************************************************************ -->
+  <Report id="PH_Report_Baseline_13" group="PH_SYS_REPORT_Baseline" baseline="true">
+    <Name> Reporting EPS Profile </Name>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <Description> This report baseline reported event rate per device </Description>
+    <SelectClause numEntries="All">
+        <AttrList> profDateType,hourOfDay,reptDevName,reptDevIpAddr,avgEventsPerSec </AttrList>
+    </SelectClause>
+    <OrderByClause> <AttrList> profDateType ASC, hourOfDay ASC,avgEventsPerSec DESC </AttrList></OrderByClause>
+    <ReportInterval><Window unit="Hourly" val="1"/></ReportInterval>
+    <PatternClause window="3600">
+       <SubPattern displayName="Filter_Router_11" name="Filter_Router_11">
+           <SingleEvtConstr> eventType = "PH_PROF_ET_116_EPS" </SingleEvtConstr>
+      </SubPattern>
+    </PatternClause>
+    <RelevantFilterAttr>reptDevIpAddr</RelevantFilterAttr>
+  </Report>  
+###
+  
+  <!-- ************************************************************ -->
+  <Report id="PH_Report_Baseline_14" group="PH_SYS_REPORT_Baseline" baseline="true">
+    <Name> Server Process Count profile</Name>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <Description> This report baselines the number of processes running at a server. </Description>
+    <SelectClause numEntries="All">
+        <AttrList> profDateType,hourOfDay,hostName,hostIpAddr,avgProcCount </AttrList>
+    </SelectClause>
+    <OrderByClause> <AttrList> profDateType ASC, hourOfDay ASC,avgProcCount DESC </AttrList></OrderByClause>
+    <ReportInterval><Window unit="Hourly" val="1"/></ReportInterval>
+    <PatternClause window="3600">
+       <SubPattern displayName="Filter_Router_11" name="Filter_Router_11">
+           <SingleEvtConstr> eventType = "PH_PROF_ET_117_PROC_COUNT" </SingleEvtConstr>
+      </SubPattern>
+    </PatternClause>
+    <RelevantFilterAttr>hostIpAddr</RelevantFilterAttr>
+  </Report>  
+###
+  <!-- ************************************************************ -->
+  <Report id="PH_Report_Baseline_15" group="PH_SYS_REPORT_Baseline" baseline="true">
+    <Name> Privileged Logon Profile </Name>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <Description> This report baselines privileged logons at a server</Description>
+    <SelectClause numEntries="All">
+        <AttrList> profDateType,hourOfDay,reptDevName,reptDevIpAddr,avgMatchedEvents </AttrList>
+    </SelectClause>
+    <OrderByClause> <AttrList> profDateType ASC, hourOfDay ASC,avgMatchedEvents DESC </AttrList></OrderByClause>
+    <ReportInterval><Window unit="Hourly" val="1"/></ReportInterval>
+    <PatternClause window="3600">
+       <SubPattern displayName="Filter_Router_11" name="Filter_Router_11">
+           <SingleEvtConstr> eventType = "PH_PROF_ET_118_PRIV_LOGON" </SingleEvtConstr>
+      </SubPattern>
+    </PatternClause>
+    <RelevantFilterAttr>reptDevIpAddr</RelevantFilterAttr>
+  </Report>  
+###
+  <!-- ************************************************************ -->
+  <Report id="PH_Report_Baseline_16" group="PH_SYS_REPORT_Baseline" baseline="true">
+    <Name> Reported Event Type Profile </Name>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <Description> This report provides baselines for distinct event types reported by a device</Description>
+    <SelectClause numEntries="All">
+        <AttrList> profDateType,hourOfDay,reptDevName,reptDevIpAddr,avgMatchedEvents,avgDistinctEventType </AttrList>
+    </SelectClause>
+    <OrderByClause> <AttrList> profDateType ASC, hourOfDay ASC,avgMatchedEvents DESC </AttrList></OrderByClause>
+    <ReportInterval><Window unit="Hourly" val="1"/></ReportInterval>
+    <PatternClause window="3600">
+       <SubPattern displayName="Filter_Router_11" name="Filter_Router_11">
+           <SingleEvtConstr> eventType = "PH_PROF_ET_119_EVENT_TYPE" </SingleEvtConstr>
+      </SubPattern>
+    </PatternClause>
+    <RelevantFilterAttr>reptDevIpAddr</RelevantFilterAttr>
+  </Report>  
+###
+  
+  <!-- ************************************************************ -->
+  <Report id="PH_Report_Baseline_17" group="PH_SYS_REPORT_Baseline" baseline="true">
+    <Name> Reported Error Log Profile </Name>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <Description> This report baselines the number of errors reported in logs on a per device basis</Description>
+    <SelectClause numEntries="All">
+        <AttrList> profDateType,hourOfDay,reptDevName,reptDevIpAddr,avgMatchedEvents </AttrList>
+    </SelectClause>
+    <OrderByClause> <AttrList> profDateType ASC, hourOfDay ASC,avgMatchedEvents DESC </AttrList></OrderByClause>
+    <ReportInterval><Window unit="Hourly" val="1"/></ReportInterval>
+    <PatternClause window="3600">
+       <SubPattern displayName="Filter_Router_11" name="Filter_Router_11">
+           <SingleEvtConstr> eventType = "PH_PROF_ET_120_ERROR_ET" </SingleEvtConstr>
+      </SubPattern>
+    </PatternClause>
+    <RelevantFilterAttr>reptDevIpAddr</RelevantFilterAttr>
+  </Report> 
+###
+  <!-- ************************************************************ -->
+  <Report id="PH_Report_Baseline_18" group="PH_SYS_REPORT_Baseline" baseline="true">
+    <Name> Failed User Logon Profile </Name>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <Description> This report baselines failed user logons at a host</Description>
+    <SelectClause numEntries="All">
+        <AttrList> profDateType,hourOfDay,reptDevName,reptDevIpAddr,avgMatchedEvents,avgDistinctUser,avgDistinctSrcIpAddr </AttrList>
+    </SelectClause>
+    <OrderByClause> <AttrList> profDateType ASC, hourOfDay ASC,avgMatchedEvents DESC </AttrList></OrderByClause>
+    <ReportInterval><Window unit="Hourly" val="1"/></ReportInterval>
+    <PatternClause window="3600">
+       <SubPattern displayName="Filter_Router_11" name="Filter_Router_11">
+           <SingleEvtConstr> eventType = "PH_PROF_ET_122_LOGON_FAIL" </SingleEvtConstr>
+      </SubPattern>
+    </PatternClause>
+    <RelevantFilterAttr>reptDevIpAddr</RelevantFilterAttr>
+  </Report> 
+###
+  <!-- ************************************************************ -->
+  <Report id="PH_Report_Baseline_23" group="PH_SYS_REPORT_Baseline" baseline="true">
+    <Name> STM Response Time Profile </Name>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <Description> This report baselines Synthetic Transaction Monitoting response times. </Description>
+    <SelectClause numEntries="All">
+        <AttrList> profDateType, hourOfDay,hostName,endUserMonitorName,avgAppResponseTimeMSec,sdevAppResponseTimeMSec</AttrList>
+    </SelectClause>
+    <OrderByClause> <AttrList> profDateType ASC, hourOfDay ASC, avgAppResponseTimeMSec DESC  </AttrList></OrderByClause>
+    <ReportInterval><Window unit="Hourly" val="1"/></ReportInterval>
+    <PatternClause window="3600">
+       <SubPattern displayName="Filter_Router_19" name="Filter_Router_19">
+           <SingleEvtConstr> eventType = "PH_PROF_ET_123_STM"  </SingleEvtConstr>
+      </SubPattern>
+    </PatternClause>
+    <RelevantFilterAttr>hostIpAddr</RelevantFilterAttr>
+  </Report>
+###
+  <!-- ************************************************************ -->
+  <Report id="PH_Report_Baseline_23B" group="PH_SYS_REPORT_Baseline" baseline="true">
+    <Name> Ping Response Time Profile </Name>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <Description> This report baselines Ping response times. </Description>
+    <SelectClause numEntries="All">
+        <AttrList> profDateType, hourOfDay,hostName,avgAvgDurationMSec,sdevAvgDurationMSec</AttrList>
+    </SelectClause>
+    <OrderByClause> <AttrList> profDateType ASC, hourOfDay ASC, avgAvgDurationMSec DESC  </AttrList></OrderByClause>
+    <ReportInterval><Window unit="Hourly" val="1"/></ReportInterval>
+    <PatternClause window="3600">
+       <SubPattern displayName="Filter_Router_19" name="Filter_Router_19">
+           <SingleEvtConstr> eventType = "PH_PROF_ET_127_PING_RTT"  </SingleEvtConstr>
+      </SubPattern>
+    </PatternClause>
+    <RelevantFilterAttr>hostIpAddr</RelevantFilterAttr>
+  </Report>
+###
+  <!-- ************************************************************ -->
+  <Report id="PH_Report_Baseline_23C" group="PH_SYS_REPORT_Baseline" baseline="true">
+    <Name> SNMP Response Time Profile </Name>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <Description> This report baselines SNMP response times. </Description>
+    <SelectClause numEntries="All">
+        <AttrList> profDateType, hourOfDay,hostName,avgAvgDurationMSec,sdevAvgDurationMSec</AttrList>
+    </SelectClause>
+    <OrderByClause> <AttrList> profDateType ASC, hourOfDay ASC, avgAvgDurationMSec DESC  </AttrList></OrderByClause>
+    <ReportInterval><Window unit="Hourly" val="1"/></ReportInterval>
+    <PatternClause window="3600">
+       <SubPattern displayName="Filter_Router_19" name="Filter_Router_19">
+           <SingleEvtConstr> eventType = "PH_PROF_ET_128_SNMP_RTT"  </SingleEvtConstr>
+      </SubPattern>
+    </PatternClause>
+    <RelevantFilterAttr>hostIpAddr</RelevantFilterAttr>
+  </Report>
+###
+  <!-- ************************************************************ -->
+  <Report id="PH_Report_Baseline_23D" group="PH_SYS_REPORT_Baseline" baseline="true">
+    <Name> WMI Response Time Profile </Name>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <Description> This report baselines WMI response times. </Description>
+    <SelectClause numEntries="All">
+        <AttrList> profDateType, hourOfDay,hostName,avgAvgDurationMSec,sdevAvgDurationMSec</AttrList>
+    </SelectClause>
+    <OrderByClause> <AttrList> profDateType ASC, hourOfDay ASC, avgAvgDurationMSec DESC  </AttrList></OrderByClause>
+    <ReportInterval><Window unit="Hourly" val="1"/></ReportInterval>
+    <PatternClause window="3600">
+       <SubPattern displayName="Filter_Router_19" name="Filter_Router_19">
+           <SingleEvtConstr> eventType = "PH_PROF_ET_129_WMI_RTT"  </SingleEvtConstr>
+      </SubPattern>
+    </PatternClause>
+    <RelevantFilterAttr>hostIpAddr</RelevantFilterAttr>
+  </Report>
+###
+  <!-- ************************************************************ -->
+  <Report id="PH_Report_Baseline_21B" group="PH_SYS_REPORT_Baseline" baseline="true">
+    <Name> Source Traffic Profile </Name>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <Description> This report baselines traffic generated by a source. The data is reported by network flow (Netflow, Sflow) and firewall logs. </Description>
+    <SelectClause numEntries="All">
+        <AttrList> profDateType, hourOfDay, srcIpAddr, avgDistinctDestIpAddr, avgDistinctDestIpPort, avgTotFlows, avgTotBytes </AttrList>
+    </SelectClause>
+    <OrderByClause> <AttrList> profDateType ASC, hourOfDay ASC, avgTotFlows DESC  </AttrList></OrderByClause>
+    <ReportInterval><Window unit="Hourly" val="1"/></ReportInterval>
+    <PatternClause window="3600">
+       <SubPattern displayName="Filter_Router_15" name="Filter_Router_15">
+           <SingleEvtConstr> eventType = "PH_PROF_ET_125_CLIENT_AGGR"  </SingleEvtConstr>
+      </SubPattern>
+    </PatternClause>
+     <RelevantFilterAttr>srcIpAddr</RelevantFilterAttr>
+  </Report>
+###
+  
+  <!-- ************************************************************ -->
+  <Report id="PH_Report_Baseline_22B" group="PH_SYS_REPORT_Baseline" baseline="true">
+    <Name> Destination Traffic Profile  </Name>
+    <CustomerScope groupByEachCustomer="true"> <Include all="true"/> <Exclude/> </CustomerScope>
+    <Description> This report baselines traffic destined to a server. The data is reported by network flow (Netflow, Sflow) and firewall logs. </Description>
+    <SelectClause numEntries="All">
+        <AttrList> profDateType, hourOfDay,destIpAddr,avgDistinctSrcIpAddr,avgDistinctDestIpPort,avgTotFlows, avgTotBytes </AttrList>
+    </SelectClause>
+    <OrderByClause> <AttrList> profDateType ASC, hourOfDay ASC, avgTotFlows DESC  </AttrList></OrderByClause>
+    <ReportInterval><Window unit="Hourly" val="1"/></ReportInterval>
+    <PatternClause window="3600">
+       <SubPattern displayName="Filter_Router_19" name="Filter_Router_19">
+           <SingleEvtConstr> eventType = "PH_PROF_ET_126_SERVER_AGGR"  </SingleEvtConstr>
+      </SubPattern>
+    </PatternClause>
+    <RelevantFilterAttr>destIpAddr</RelevantFilterAttr>
+  </Report>
+###
+</Reports> 
