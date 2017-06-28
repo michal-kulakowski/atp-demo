@@ -41,9 +41,9 @@
 			</tr>
 			<tr>
 				<td colspan="3">
-					<p>Recently Wannacry ransomware has taken much attention in the news. It has disrupted healthcare services in the UK, disabled ATM's, railway control systems and public display screens.</p>
-					<p>What was different this time? For the first time ever ransomware got delivered as advanced, peristent threat which means attacker silently penetrated the network using Double Pulsar backdoor leaked from NSA, and only delivered ransomware payload 2 weeks later. Moreover the original infection mechanism was propagaing without uer intervention (worm style) making original infection paricularly quick. This is also the reason why, despite high profile of the attack, we still do not know attack vector behind it.</p>
-					<p>Note that the vulnerability used by attacker was not zero day. Despite OS Vendors efforts to release fix early, there always will be some systems which cannot be patched on time either because it would break application or because OS management was skipped in product design phase (IoT).</p>
+					<p>Recently Wannacry ransomware has taken much attention in the news. It has disrupted healthcare services in the UK, disabled ATM's, railway control systems and public display screens. Now similar havoc is spread by Petya.A leveraging similar mechanisms.</p>
+					<p>How is that different from ransomware of yesterday? For the first time ever ransomware got delivered as advanced peristent threat, which means attacker silently penetrated the network using Double Pulsar backdoor leaked from NSA, and only delivered ransomware payload 2 weeks later. Moreover the original infection mechanism was propagaing without user intervention (worm style) making original infection paricularly quick. This is also the reason why, despite high profile of the attack, we still do not know original attack vector behind it.</p>
+					<p>Note that the vulnerability used by attacker was not zero day. Despite OS vendor's efforts to release fix early, there always will be some systems which cannot be patched on time, either because it would break application, or because OS management was skipped in product design phase (IoT).</p>
 				</td>
 			</tr>
 			<tr>
@@ -59,7 +59,7 @@
 							<li>99,5% malware is unique to organization under attack</li>
 						</ul>
 					</p>
-					<p>On our simulated network there is FortiSanbox and FortiGate installed stopping all known threats on the spot and running analysis on the unknown ones. Sandboxing time is counted in minutes which means infections can be contained quickly across all organization and attack vectors but they cannot be ruled out.</p>
+					<p>On our simulated network there is FortiSanbox and FortiGate installed stopping all known threats on the spot and running analysis on the unknown ones. Sandboxing time is counted in minutes which means infections can be contained quickly across all organization and attack vectors but they cannot be ruled out (if the first download channel is real time like web, skype, etc the infected file will get through).</p>
 				</td>
 				<td>
 					<a href="img/incident_detected.png"><img src="img/thumbnails/incident_detected.png"/></a>
@@ -73,7 +73,7 @@
 					<p>As you san see incident is detected, let us have a look on the correlation logic behind and why does it take SIEM to find what has happened.</p>
 					<p>The rule looks for two triggers happening in sequence, within 300 seconds time window AND relating to the same source IP address. The security devices firing those triggers may and typically will be distinct. Big chunk of SIEM value is normalizing events coming form different sources so that they can be compared and observed together.</p>
 					<p>In our demo scenario the first trigger was fired by logs from FortiSandbox which, upon analysis, found one payload downloaded over the web by one of the hosts to be high risk.</p>
-					<p>The second one is having two alternate implementations, either of them is sufficient to generate incident. The latter is SMB traffic from host flowing to larger than usual numer of distinct destination. Traffic baseline is used for comparison. In our environment we do not have real devices and hence traffic baseline cannot be generated. For this reason simpler alternative is provided comparing amount of distinct SMB traffic targets to a static threshold. We will discuss all of them momentarily.</p>
+					<p>The second one detects SMB traffic from host flowing to larger than usual numer of distinct destinations.</p>
 				</td>
 				<td><a href="img/rule_details.png"><img src="img/thumbnails/rule_details.png"/></a>
 				</td>
@@ -92,26 +92,36 @@
 			</tr>
 			<tr>
 				<td>
-					<p>Click on a pencil icon next to <i>smb_targets_exceed_baseline</i> trigger.</p>
-					<p>Talk through.</p>
-					<p>Click cancel.</p>
-				</td>
-				<td>
-					<p>In this formula we leverage traffic baseline collected weekly for every source IP to determine of current number of distinct SMB target addresses exceeds hourly average number of distinct flow targets by 3 standard deviations or more. In statistical language this means significant change in behaviour vs baseline.</p>
-				</td>
-				<td><a href="img/baseline_trigger.png"><img src="img/thumbnails/baseline_trigger.png"/>
-				</td>
-			</tr>
-			<tr>
-				<td>
 					<p>Click on a pencil icon next to <i>smb_targets_exceed_threshold</i> trigger.</p>
 					<p>Talk through.</p>
 					<p>Click cancel.</p>
 				</td>
 				<td>
-					<p>In our environment we use log replay and the IP under attack does not really exist, hence baselining it is not possible. Same would happen if the IP address was new in the environment. For this reason I have created alternate condition comparing number of distinct destinations of SMB communication to static threshold of 10.</p>
+					<p>Here built in functions are used to count distinct destinations and compare them against static threshold. Alternative to this approach is comparing against straffic baseline which we are going to see next. This type of rule is still useful to detect incidents against new hosts on the network which do not have baseline yet.</p>
 				</td>
 				<td><a href="img/threshold_trigger.png"><img src="img/thumbnails/threshold_trigger.png"/>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p>Go to Analytics > Rules. Search for Wannacry. Select baseline variant. Click Edit.</p>
+				</td>
+				<td>
+				</td>
+				<td><a href="img/rule_search.png"><img src="img/thumbnails/rule_search.png"/>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p>Click on a pencil icon next to <i>smb_targets_exceed_baseline</i> trigger.</p>
+					<p>Talk through.</p>
+					<p>Click cancel.</p>
+				</td>
+				<td>
+					<p>In this formula we compare against traffic baseline collected weekly for every source IP to determine of current number of distinct SMB target addresses exceeds hourly average number of distinct flow targets by 3 standard deviations or more. In statistical language this means significant change in behaviour vs baseline.</p>
+					<p>If the baseline is not defined, as it is the case in our lab the rule would cause division by zero and would fail silently without generating an incident. </p>
+				</td>
+				<td><a href="img/baseline_trigger.png"><img src="img/thumbnails/baseline_trigger.png"/>
 				</td>
 			</tr>
 			<tr>

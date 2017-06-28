@@ -1,6 +1,6 @@
 <Rules>
   <Rule advanced="true" active="true" fireInternalIncident="false" phIncidentCategory="Other" functionCategory="SECURITY">
-    <Name>Wannacry attack detected</Name>
+    <Name>Wannacry attack detected - threshold</Name>
     <Description>Detects a host receiving malware and responding with SMB scan</Description>
     <Remediation/>
     <CustomerScope groupByEachCustomer="true">
@@ -19,19 +19,43 @@
         <SingleEvtConstr>eventType IN (Group@PH_SYS_EVENT_Worm_Found)</SingleEvtConstr>
         <GroupByAttr>srcIpAddr</GroupByAttr>
       </SubPattern>
-      <Operator rank="1" type="FOLLOWED_BY"/>
+      <Operator rank="0" type="FOLLOWED_BY"/>
       <SubPattern id="1689904" name="smb_targets_exceed_threshold">
         <SingleEvtConstr>destIpPort = 139  OR  destIpPort = 445</SingleEvtConstr>
         <GroupEvtConstr>COUNT(*) &gt;= 1  AND  COUNT(DISTINCT destIpAddr) &gt; 2</GroupEvtConstr>
         <GroupByAttr>srcIpAddr</GroupByAttr>
       </SubPattern>
-      <Operator rank="0" type="OR"/>
-      <SubPattern id="1689901" name="smb_targets_exceed_baseline">
+      <GlobalConstr>malware_sent_to_host.srcIpAddr = smb_targets_exceed_threshold.srcIpAddr</GlobalConstr>
+    </PatternClause>
+    <userRoles/>
+    <TriggerEventDisplay>
+      <AttrList>phRecvTime, eventType, reptDevIpAddr, rawEventMsg</AttrList>
+    </TriggerEventDisplay>
+  </Rule>
+  <Rule advanced="true" active="false" fireInternalIncident="false" phIncidentCategory="Other" functionCategory="SECURITY">
+    <Name>Wannacry attack detected - baseline</Name>
+    <Description>Detects a host receiving malware and responding with SMB scan</Description>
+    <Remediation/>
+    <CustomerScope groupByEachCustomer="true">
+      <Include>1</Include>
+      <Exclude/>
+    </CustomerScope>
+    <IncidentDef eventType="Wannacry_attack_detected_2" eventTypeGroup="PH_SYS_EVENT_PH_RULE_SEC" fireFreq="900" severity="10">
+      <ArgList>srcIpAddr = malware_sent_to_host.srcIpAddr</ArgList>
+    </IncidentDef>
+    <DynWatchListDef/>
+    <PatternClause window="300">
+      <SubPattern id="1692950" name="malware_sent_to_host">
+        <SingleEvtConstr>eventType IN (Group@PH_SYS_EVENT_Worm_Found)</SingleEvtConstr>
+        <GroupByAttr>srcIpAddr</GroupByAttr>
+      </SubPattern>
+      <Operator rank="0" type="FOLLOWED_BY"/>
+      <SubPattern id="1692952" name="smb_targets_exceed_baseline">
         <SingleEvtConstr>destIpPort = 139  OR  destIpPort = 445</SingleEvtConstr>
         <GroupEvtConstr>(COUNT(DISTINCT destIpAddr)- STAT_AVG(maxDistinctDestIpAddr:125))/ STAT_STDDEV(maxDistinctDestIpAddr:125) &gt;= 3  AND  STAT_STDDEV(maxDistinctDestIpAddr:125) &gt; 0</GroupEvtConstr>
         <GroupByAttr>srcIpAddr</GroupByAttr>
       </SubPattern>
-      <GlobalConstr>malware_sent_to_host.srcIpAddr = smb_targets_exceed_threshold.srcIpAddr OR malware_sent_to_host.srcIpAddr = smb_targets_exceed_baseline.srcIpAddr</GlobalConstr>
+      <GlobalConstr>malware_sent_to_host.srcIpAddr = smb_targets_exceed_baseline.srcIpAddr</GlobalConstr>
     </PatternClause>
     <userRoles/>
     <TriggerEventDisplay>
