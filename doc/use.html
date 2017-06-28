@@ -40,14 +40,10 @@
 				<td colspan="3">Execution</td>
 			</tr>
 			<tr>
-				<td>
-				</td>
-				<td>
+				<td colspan="3">
 					<p>Recently Wannacry ransomware has taken much attention in the news. It has disrupted healthcare services in the UK, disabled ATM's, railway control systems and public display screens.</p>
 					<p>What was different this time? For the first time ever ransomware got delivered as advanced, peristent threat which means attacker silently penetrated the network using Double Pulsar backdoor leaked from NSA, and only delivered ransomware payload 2 weeks later. Moreover the original infection mechanism was propagaing without uer intervention (worm style) making original infection paricularly quick. This is also the reason why, despite high profile of the attack, we still do not know attack vector behind it.</p>
 					<p>Note that the vulnerability used by attacker was not zero day. Despite OS Vendors efforts to release fix early, there always will be some systems which cannot be patched on time either because it would break application or because OS management was skipped in product design phase (IoT).</p>
-				</td>
-				<td>
 				</td>
 			</tr>
 			<tr>
@@ -75,7 +71,7 @@
 				</td>
 				<td>
 					<p>As you san see incident is detected, let us have a look on the correlation logic behind and why does it take SIEM to find what has happened.</p>
-					<p>The rule looks for two triggers happening in sequence, within 300 seconds time window AND relating to the same source IP address. The security devices firing those triggers may and typically will be distinct. Big chunk of SIEM value is normalizing events coming form different sources so that they cna be compared and observed together.</p>
+					<p>The rule looks for two triggers happening in sequence, within 300 seconds time window AND relating to the same source IP address. The security devices firing those triggers may and typically will be distinct. Big chunk of SIEM value is normalizing events coming form different sources so that they can be compared and observed together.</p>
 					<p>In our demo scenario the first trigger was fired by logs from FortiSandbox which, upon analysis, found one payload downloaded over the web by one of the hosts to be high risk.</p>
 					<p>The second one is having two alternate implementations, either of them is sufficient to generate incident. The latter is SMB traffic from host flowing to larger than usual numer of distinct destination. Traffic baseline is used for comparison. In our environment we do not have real devices and hence traffic baseline cannot be generated. For this reason simpler alternative is provided comparing amount of distinct SMB traffic targets to a static threshold. We will discuss all of them momentarily.</p>
 				</td>
@@ -84,74 +80,79 @@
 			</tr>
 			<tr>
 				<td>
+					<p>Click on a pencil icon next to <i>malware_sent_to_host</i> trigger.</p>
+					<p>Talk through.</p>
+					<p>Click cancel.</p>
 				</td>
 				<td>
+					<p>First event is any event of class <i>Malware:Virus Found</i>. Note this may come from any fabric element: AV engine, FortiClient or Sandbox. In this case it is the latter which we care for most because, due to sandboxing technology specifics, this event may be known only after the file has been downloaded to the host. Regardless of the source IP of the host under attack is extracted for further analysis.</p>
 				</td>
-				<td>
-				</td>
-			</tr>
-			<tr>
-				<td>
-				</td>
-				<td>
-				</td>
-				<td>
+				<td><a href="img/malware_sent_trigger.png"><img src="img/thumbnails/malware_sent_trigger.png"/>
 				</td>
 			</tr>
 			<tr>
 				<td>
+					<p>Click on a pencil icon next to <i>smb_targets_exceed_baseline</i> trigger.</p>
+					<p>Talk through.</p>
+					<p>Click cancel.</p>
 				</td>
 				<td>
+					<p>In this formula we leverage traffic baseline collected weekly for every source IP to determine of current number of distinct SMB target addresses exceeds hourly average number of distinct flow targets by 3 standard deviations or more. In statistical language this means significant change in behaviour vs baseline.</p>
 				</td>
-				<td>
-				</td>
-			</tr>
-			<tr>
-				<td>
-				</td>
-				<td>
-				</td>
-				<td>
+				<td><a href="img/baseline_trigger.png"><img src="img/thumbnails/baseline_trigger.png"/>
 				</td>
 			</tr>
 			<tr>
 				<td>
+					<p>Click on a pencil icon next to <i>smb_targets_exceed_threshold</i> trigger.</p>
+					<p>Talk through.</p>
+					<p>Click cancel.</p>
 				</td>
 				<td>
+					<p>In our environment we use log replay and the IP under attack does not really exist, hence baselining it is not possible. Same would happen if the IP address was new in the environment. For this reason I have created alternate condition comparing number of distinct destinations of SMB communication to static threshold of 10.</p>
 				</td>
-				<td>
-				</td>
-			</tr>
-			<tr>
-				<td>
-				</td>
-				<td>
-				</td>
-				<td>
+				<td><a href="img/threshold_trigger.png"><img src="img/thumbnails/threshold_trigger.png"/>
 				</td>
 			</tr>
 			<tr>
 				<td>
+					<p>Go to <i>CMDB > Watch Lists > Malware Likely</i>.</p>
 				</td>
 				<td>
+					<p>Note while FortiSIEM never had any dicrect exposure to the victim, it got added to CMDB to <i>Malware Likely</i> category. FortiSIEM can reason about infrastructure based on multiple sources including logs, its own discovery and correlation of those. For example seeing events from Firewall, switch, DHCP server and Active Directory it can understand which domain user was logged onto offending workstation at the time of event and which switch port should be shut down in order to quarantine it.</p>
 				</td>
-				<td>
-				</td>
-			</tr>
-			<tr>
-				<td>
-				</td>
-				<td>
-				</td>
-				<td>
+				<td><a href="img/watchlist.png"><img src="img/thumbnails/watchlist.png"/>
 				</td>
 			</tr>
 			<tr>
 				<td>
+					<p>Click on <i>Network Device</i> branch, pick <i>FGT300D</i>, select <i>Health</i> tab.</p>
 				</td>
 				<td>
+					<p>Upon discovering known device type, FortiSIEM can automatically poll performance and configuration data which is made available as events and usable in rules,reports and real time queries.</p>
+					<p>Built in CMDB and discovery is great advantage since it minimizes external dependencies of the system, and helps SOC operator to see actual image of infrastructure and applications out there. This can significantly limit amount of hands on deck required for successful investigation saving labour, decreasing risk and speeding up reactions.</p>
+				</td>
+				<td><a href="img/fortigate_health.png"><img src="img/thumbnails/fortigate_health.png"/>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p>Go to <i>Analytics > Event Notification Policy > New > third '...' > Run Script: Add</i></p>
 				</td>
 				<td>
+					<p>CMDB Data is fundamental for automatic remediation and notifications. All information gathered in incident creation process is passed through to remediation scripts, e-mail notofocations, etc. One example is script shutting down relevant port on the switch to quarantine malicious host.</p>
+				</td>
+				<td><a href="img/remediation.png"><img src="img/thumbnails/remediation.png"/>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p>Go to <i>Incident</i> tab again, click <i>Ticket</i></p>
+				</td>
+				<td>
+					<p>Much more typically though you want to create ticket describing an incident and assign it to relevant IT operations personnel. Simple built in ticketing system is provided as well as integrations to Remedy, ServiceNow, ConnectWise and others.</p>
+				</td>
+				<td><a href="img/ticket.png"><img src="img/thumbnails/ticket.png"/>
 				</td>
 			</tr>
 			<tr class="subheader_row">
@@ -159,6 +160,12 @@
 			</tr>
 			<tr>
 				<td colspan="3">
+					<p>What you have just seen is a system which can:</p>
+					<ol>
+						<li>Help contain APT attacks by normalizing and correlating data from different sources. No matter how effective network policy enforcement is, it may eventually fail. Once breach happens average time to detect it is 205 days (Gartner 2016). Shortening that time is critical to limit damage and repeal attackers.</li>
+						<li>Further reduce labour spent, reduce risk and cut analysis time by utilizing built in CMDB which is always up to date thanks to built in doscovery</li>
+						<li>Streamline SecOps processes by integrating with organization's Incident Management system</li>
+					</ol>
 				</td>
 			</tr>
 		</table>

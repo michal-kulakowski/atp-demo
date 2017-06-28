@@ -20,3 +20,4 @@ Refer to `doc/use.html`
 ## Future Enhancements
 
 * Script to artificially create traffic baseline so that it can be shown in the demo
+* Add DHCP logs, additional discovery data and remediation script to demonstrate port quarantining on switch
