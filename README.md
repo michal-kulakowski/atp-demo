@@ -7,7 +7,8 @@ Complex SIEM demo scenarios are time consuming to build. The goal of this packag
 
 1. Device discovery data and logs showing specific scenario
 2. FortiSIEM rule to interpret it
-3. Documented and predictable demo flow with talking points, clicks and screenshots
+3. Sample automatic remediation script
+4. Documented and predictable demo flow with talking points, clicks and screenshots
 
 ## Installation
 
@@ -17,7 +18,15 @@ Clone this repository (`git clone git@github.com:michal-kulakowski/atp-demo.git`
 
 Refer to `doc/use.html`
 
+## Changelog
+Version 1.0
+
+* initial release
+Version 2.0
+
+* added remediation script example
+* no restart on installation required anymore
+
 ## Future Enhancements
 
 * Script to artificially create traffic baseline so that it can be shown in the demo
-* Add DHCP logs, additional discovery data and remediation script to demonstrate port quarantining on switch
