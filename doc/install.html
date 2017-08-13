@@ -11,19 +11,23 @@
 		<h1>Fortinet ATP Demo Installation Instructions</h1>
 		<ol>
 			<li>Log onto your FortiSIEM instance (super) as root</li>
-			<li>Clone github repository to convenient location</li>
+			<li>Clone github repository to convenient location, e.g. <code>/opt</code>.
 				<ul>
 					<li><code>git clone https://github.com/michal-kulakowski/atp-demo.git</code></li>
 				</ul>
-			<li>Enter ATP demo directory</li>
+			</li>
+			<li>Make sure full path to <code>bin</code> directory is readable by everyone. If you want your files under <code>/root</code>, ececute <code>chmod 755 /root</code></li>
+			<li>Enter ATP demo directory
 				<ul>
 					<li><code>cd atp-demo</code></li>
 				</ul>
-			<li>Set up file based discovery</li>
+			</li>
+			<li>Set up file based discovery
 				<ul>
 					<li><code>./setup.sh</code></li>
 					<li>wait for the system to reboot. If it prompts you for the license after reboot, it is because not all processes are up and running yet. Wait a minute and try again.</li>
 				</ul>
+			</li>
 			<li>
 				<p>Define SNMP credentials. Use any community string, discovery is going to run from disk anyway. Define Credential Associations.</p>
 				<img src="img/prep_credentials.png"/>
@@ -36,7 +40,7 @@
 				<p>Run discovery for both IP addresses. Make sure you get results.</p>
 				<img src="img/prep_discover.png"/>
 			</li>
-			<li>Load the rule</li>
+			<li>Load the rule
 				<ul>
 					<li><code>view rules.xml</code></li>
 					<li>copy contents</li>
@@ -44,8 +48,13 @@
 					<img src="img/prep_rule_import.png"/>
 					</li>
 					<li>paste &amp; import</li>
-				</ul>
-				<li>Open <a href="use.html">doc/use.html</a> with your browser and execute demo scenario described</li>
+				</ul></li>
+			<li>
+				<p>Add remediation script under <i>Analytics > Incident Notification Policy</i> for newly created rules</p>
+				<img src="img/prep_incident_notification_policy.png"/>
+				<p>Make sure you specify absolute path reflecting script actual  location.</p>
+			</li>
+			<li>Open <a href="use.html">doc/use.html</a> with your browser and execute demo scenario described</li>
 			</ol>
 	</body>
 </html>
