@@ -58,5 +58,5 @@ for node in incident_status:
 
 
 ##Remediation
-os.system('wall "######## INCIDENT: Wannacry attack detected - threshold ####################################################\nIf I had an external system to talk to, I would quarantine IP '+hostIP+' and/or MAC '+hostMAC+' now\n############################################################################################################"')
+os.system('wall "######## INCIDENT REMEDIATION: Wannacry attack detected - threshold ########################################\nIf I had an external system to talk to, I would quarantine IP '+hostIP+' and/or MAC '+hostMAC+' now\n############################################################################################################"')
 
