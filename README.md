@@ -12,7 +12,7 @@ Complex SIEM demo scenarios are time consuming to build. The goal of this packag
 
 ## Installation
 
-Clone this repository (`git clone git@github.com:michal-kulakowski/atp-demo.git`). Refer to `doc/install.html`.
+Clone this repository (`git clone https://github.com/michal-kulakowski/atp-demo.git`). Refer to `doc/install.html`.
 
 ## Usage
 
@@ -22,9 +22,11 @@ Refer to `doc/use.html`
 Version 1.0
 
 * initial release
+
 Version 2.0
 
 * added remediation script example
+* added dashboards to demo flow
 * no restart on installation required anymore
 
 ## Future Enhancements
