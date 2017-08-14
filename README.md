@@ -25,6 +25,7 @@ Version 1.0
 Version 2.0
 
 * added remediation script example
+* added dashboards to demo flow
 * no restart on installation required anymore
 
 ## Future Enhancements
