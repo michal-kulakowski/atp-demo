@@ -50,7 +50,7 @@
 				<td>
 					<p>Go to the ssh window and execute <code>bin/run.sh</code></p>
 					<p>Switch back to web console, then talk through and hit refresh button.</p>
-					<p>Observe <i>Wannacry attack detected</i> incident appear. It should take around 40 seconds from when script is run.</p>
+					<p>Observe <i>Wannacry attack detected</i> incident appear. It should take around 2 minutes from when script is run.</p>
 				</td>
 				<td>
 					<p>Let us simulate the situation where future unknown variant of Wannacry gets installed somewhere on the network. Ideally it gets stopped on the perimeter, but that is not always possible. According to Verizon's 2016 <cite>Data Breach Investigation</cite> paper:
@@ -70,8 +70,8 @@
 					<p>Select the right incident. Click <i>Edit Rule</i> button.</p>
 				</td>
 				<td>
-					<p>As you san see incident is detected, let us have a look on the correlation logic behind and why does it take SIEM to find what has happened.</p>
-					<p>The rule looks for two triggers happening in sequence, within 300 seconds time window AND relating to the same source IP address. The security devices firing those triggers may and typically will be distinct. Big chunk of SIEM value is normalizing events coming form different sources so that they can be compared and observed together.</p>
+					<p>As you san see incident is detected, let us have a look on the correlation logic behind and why does it take SIEM to find out what has happened.</p>
+					<p>The rule looks for two triggers happening in sequence, within 300 seconds time window AND relating to the same IP address. The security devices firing those triggers may and typically will be distinct. Big chunk of SIEM value is normalizing events coming form different sources so that they can be compared and observed together.</p>
 					<p>In our demo scenario the first trigger was fired by logs from FortiSandbox which, upon analysis, found one payload downloaded over the web by one of the hosts to be high risk.</p>
 					<p>The second one detects SMB traffic from host flowing to larger than usual numer of distinct destinations.</p>
 				</td>
@@ -85,7 +85,7 @@
 					<p>Click cancel.</p>
 				</td>
 				<td>
-					<p>First event is any event of class <i>Malware:Virus Found</i>. Note this may come from any fabric element: AV engine, FortiClient or Sandbox. In this case it is the latter which we care for most because, due to sandboxing technology specifics, this event may be known only after the file has been downloaded to the host. Regardless of the source IP of the host under attack is extracted for further analysis.</p>
+					<p>First event is any event of class <i>Malware:Virus Found</i>. Note this may come from any security fabric element: AV engine, FortiClient or Sandbox. In this case it is the latter which we care for most because, due to sandboxing technology specifics, this event may be known only after the file has been downloaded to the host. Regardless of the source IP of the host under attack is extracted for further analysis.</p>
 				</td>
 				<td><a href="img/malware_sent_trigger.png"><img src="img/thumbnails/malware_sent_trigger.png"/>
 				</td>
@@ -97,7 +97,7 @@
 					<p>Click cancel.</p>
 				</td>
 				<td>
-					<p>Here built in functions are used to count distinct destinations and compare them against static threshold. Alternative to this approach is comparing against straffic baseline which we are going to see next. This type of rule is still useful to detect incidents against new hosts on the network which do not have baseline yet.</p>
+					<p>Here built in functions are used to count distinct destinations and compare them against static threshold. Alternative to this approach is comparing against traffic baseline which we are going to see next. This type of rule is still useful to detect incidents against new hosts on the network which do not have baseline yet.</p>
 				</td>
 				<td><a href="img/threshold_trigger.png"><img src="img/thumbnails/threshold_trigger.png"/>
 				</td>
@@ -119,40 +119,9 @@
 				</td>
 				<td>
 					<p>In this formula we compare against traffic baseline collected weekly for every source IP to determine of current number of distinct SMB target addresses exceeds hourly average number of distinct flow targets by 3 standard deviations or more. In statistical language this means significant change in behaviour vs baseline.</p>
-					<p>If the baseline is not defined, as it is the case in our lab the rule would cause division by zero and would fail silently without generating an incident. </p>
+					<p>If the baseline is not defined, as it is the case in our lab the rule would cause division by zero and would fail silently without generating an incident. It is safe to have multiple rules detecting certain behaviour under different conditions.</p>
 				</td>
 				<td><a href="img/baseline_trigger.png"><img src="img/thumbnails/baseline_trigger.png"/>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<p>Go to <i>CMDB > Watch Lists > Malware Likely</i>.</p>
-				</td>
-				<td>
-					<p>Note while FortiSIEM never had any dicrect exposure to the victim, it got added to CMDB to <i>Malware Likely</i> category. FortiSIEM can reason about infrastructure based on multiple sources including logs, its own discovery and correlation of those. For example seeing events from Firewall, switch, DHCP server and Active Directory it can understand which domain user was logged onto offending workstation at the time of event and which switch port should be shut down in order to quarantine it.</p>
-				</td>
-				<td><a href="img/watchlist.png"><img src="img/thumbnails/watchlist.png"/>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<p>Click on <i>Network Device</i> branch, pick <i>FGT300D</i>, select <i>Health</i> tab.</p>
-				</td>
-				<td>
-					<p>Upon discovering known device type, FortiSIEM can automatically poll performance and configuration data which is made available as events and usable in rules,reports and real time queries.</p>
-					<p>Built in CMDB and discovery is great advantage since it minimizes external dependencies of the system, and helps SOC operator to see actual image of infrastructure and applications out there. This can significantly limit amount of hands on deck required for successful investigation saving labour, decreasing risk and speeding up reactions.</p>
-				</td>
-				<td><a href="img/fortigate_health.png"><img src="img/thumbnails/fortigate_health.png"/>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<p>Go to <i>Analytics > Incident Notification Policy > New > fourth '...' > Run Script: Add</i></p>
-				</td>
-				<td>
-					<p>CMDB Data is fundamental for automatic remediation and notifications. All information gathered in incident creation process is passed through to remediation scripts, e-mail notofocations, etc. One example is script shutting down relevant port on the switch to quarantine malicious host.</p>
-				</td>
-				<td><a href="img/remediation.png"><img src="img/thumbnails/remediation.png"/>
 				</td>
 			</tr>
 			<tr>
@@ -160,9 +129,62 @@
 					<p>Go to <i>Incident</i> tab again, click <i>Ticket</i></p>
 				</td>
 				<td>
-					<p>Much more typically though you want to create ticket describing an incident and assign it to relevant IT operations personnel. Simple built in ticketing system is provided as well as integrations to Remedy, ServiceNow, ConnectWise and others.</p>
+					<p>Detection would not mean much without reaction. In the most basic, manual process ticket must be created to describe an incident, assign it to relevant IT operations personnel and track progress. Simple built in ticketing system is provided as well as integrations to Remedy, ServiceNow, ConnectWise and others.</p>
 				</td>
 				<td><a href="img/ticket.png"><img src="img/thumbnails/ticket.png"/>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p>Switch back to console. Observe remediation message.</p>
+				</td>
+				<td>
+					<p>Another way to react is automatic remediation. In our environment devices are simulated and so remediation script simulates actions too by announcing what needs to be done to all system users on a console.</p>
+					<p>Remediation requires parameters: for physically connected user, we need to know switch and port, for wifi user we need to know his/her MAC address. But where does MAC in the message come from? It was not known in the original log coming from the sandbox?</p>
+				</td>
+				<td><a href="img/remediation_script_output.png"><img src="img/thumbnails/remediation_script_output.png"/>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p>Go to <i>Analytics > Identity and Location Report</i></p>
+				</td>
+				<td>
+					<p>FortiSIEM observes events which can contribute to this User-to-machine-to-IP-to-MAC-to-port-to-switching-device mapping chain and maintains up to date register for this information. It is used to enrich other events.</p>
+					<p>In our example infected device has requested IP address from DHCP and left us information about MAC address.</p>
+				</td>
+				<td><a href="img/identity_and_location_report.png"><img src="img/thumbnails/identity_and_location_report.png"/>
+				</td>
+			</tr>			
+			<tr>
+				<td>
+					<p>Go back to <i>Incidents</i>, select <i>Triggered Events > malware_sent_to_host</i>, click blue plus icon to show raw event log</p>
+				</td>
+				<td>
+					<p>Please note original raw log does not contain MAC. Sandbox does not know it. The generated event does contain it though.</p>
+				</td>
+				<td><a href="img/triggering_event_detail.png"><img src="img/thumbnails/triggering_event_detail.png"/>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p>Click on <i>Network Device</i> branch, pick <i>FGT300D</i>, select <i>Health</i> tab.</p>
+				</td>
+				<td>
+					<p>There is more useful information available in CMDB. FortiSIEM fetures built in discovery. Upon discovering known device type, FortiSIEM can automatically poll performance and configuration data which is made available as events and usable in rules,reports and real time queries.</p>
+					<p>Built in CMDB and discovery is great advantage since it minimizes external dependencies of the system, and helps SOC operator to see actual image of infrastructure and applications out there. This can significantly limit amount of hands on deck required for successful investigation saving labour, decreasing risk and speeding up reactions.</p>
+				</td>
+				<td><a href="img/fortigate_health.png"><img src="img/thumbnails/fortigate_health.png"/>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p>Go to <i>CMDB > Watch Lists > Malware Likely</i>.</p>
+				</td>
+				<td>
+					<p>But you do not need to discover configuration item to get it into CMDB. FortiSIEM can also reason about infrastructure based on logs referring to it. Since we now know about infected workstation, relevant CI was created and added to <i>Malware Likely</i> category for future lookup.</p>
+				</td>
+				<td><a href="img/watchlist.png"><img src="img/thumbnails/watchlist.png"/>
 				</td>
 			</tr>
 			<tr class="subheader_row">
